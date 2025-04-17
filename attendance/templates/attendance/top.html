@@ -1,0 +1,13 @@
+<h1>勤怠管理システム</h1>
+
+{% if user.is_authenticated %}
+  <p>ようこそ、{{ user.username }} さん！</p>
+  <ul>
+    <li><a href="{% url 'home' %}">▶ 出勤・退勤（打刻ページ）</a></li>
+    <li><a href="{% url 'history' %}">📅 勤怠履歴を見る</a></li>
+    <li><a href="{% url 'logout' %}">🔓 ログアウト</a></li>
+  </ul>
+{% else %}
+  <p>ログインしていません。</p>
+  <a href="{% url 'login' %}">🔐 ログインページへ</a>
+{% endif %}

@@ -4,6 +4,10 @@ from django.contrib.auth.decorators import login_required
 from .models import AttendanceLog
 
 @login_required
+def top_view(request):
+    return render(request, 'attendance/top.html')
+
+@login_required
 def history_view(request):
     logs = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'attendance/history.html', {'logs': logs})
