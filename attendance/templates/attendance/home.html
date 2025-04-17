@@ -1,0 +1,14 @@
+<h2>勤怠打刻</h2>
+<p>ようこそ {{ request.user.username }} さん</p>
+
+<form action="{% url 'record_attendance' 'in' %}" method="post">
+  {% csrf_token %}
+  <button type="submit">出勤</button>
+</form>
+
+<form action="{% url 'record_attendance' 'out' %}" method="post">
+  {% csrf_token %}
+  <button type="submit">退勤</button>
+</form>
+
+<p><a href="{% url 'history' %}">勤怠履歴を見る</a></p>
