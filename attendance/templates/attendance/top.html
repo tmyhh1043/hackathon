@@ -20,6 +20,10 @@
         <a href="{% url 'home' %}" class="btn btn-primary btn-lg">▶ 出勤・退勤（打刻ページ）</a>
         <a href="{% url 'history' %}" class="btn btn-outline-primary btn-lg">📅 勤怠履歴を見る</a>
         <a href="{% url 'logout' %}" class="btn btn-danger btn-lg">🔓 ログアウト</a>
+
+        {% if user.is_staff %}
+          <a href="/admin/" class="btn btn-dark btn-lg">🔧 管理者画面へ</a>
+        {% endif %}
       </div>
 
     {% else %}
@@ -32,6 +36,5 @@
       </div>
     {% endif %}
   </div>
-
 </body>
 </html>

@@ -2,6 +2,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import AttendanceLog
+from django.contrib.auth import logout
+
 
 @login_required
 def top_view(request):
