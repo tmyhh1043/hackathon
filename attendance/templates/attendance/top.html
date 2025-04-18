@@ -13,7 +13,7 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
+      background: linear-gradient(0.25turn, #3f87a6, #ebf8e1, #f69d3c);
       margin: 0;
       padding: 40px 0;
       overflow-x: hidden;
@@ -39,10 +39,10 @@
     }
 
     .welcome-message {
-      background-color: #eef4ff;
+      background-color: #ffec45;
       border: 1px solid #d0dbf1;
       padding: 12px 20px;
-      border-radius: 8px;
+      border-radius: 50px;
       font-size: 1.1rem;
       color: #1a237e;
       font-weight: 500;
@@ -51,7 +51,7 @@
 
     .btn-lg {
       font-size: 1.1rem;
-      padding: 14px;
+      padding: 15px;
       transition: all 0.2s ease-in-out;
     }
 
@@ -80,27 +80,53 @@
     <h1 class="main-title">勤怠管理システム</h1>
 
     {% if user.is_authenticated %}
+      <!-- 挨拶 -->
       <div class="welcome-message text-center">
         ようこそ、<strong>{{ user.username }}</strong> さん！
       </div>
 
-      <div class="d-grid gap-3">
-        <a href="{% url 'home' %}" class="btn btn-primary btn-lg">▶ 出勤・退勤（打刻ページ）</a>
-        <a href="{% url 'history' %}" class="btn btn-outline-primary btn-lg">📅 勤怠履歴を見る</a>
-        <a href="{% url 'logout' %}" class="btn btn-danger btn-lg">🔓 ログアウト</a>
-
-        {% if user.is_staff %}
-          <a href="/admin/" class="btn btn-dark btn-lg">🔧 管理者画面へ</a>
-        {% endif %}
+      <!-- 打刻ボタン -->
+      <div class="d-grid gap-4 col-8 mx-auto section">
+        <form action="{% url 'record_attendance' 'in' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success btn-lg shadow w-100">🟢 出勤</button>
+        </form>
+        
+        <form action="{% url 'record_attendance' 'out' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-lg shadow w-100 mb-4">🔴 退勤</button>
+        </form>
       </div>
+      
+
+      <form method="POST" action="{% url 'top' %}">
+        <div class="d-grid gap-4 col-8 mx-auto section">
+
+          <!-- 勤怠履歴 -->
+          <a href="{% url 'history' %}" class="btn btn-primary btn-lg shadow">📅 勤怠履歴を見る</a>
+
+          <!-- ダッシュボード -->
+          <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-lg shadow">🖥️ ダッシュボードを見る</a>
+          
+      </form>
+
+      <!-- ログアウトボタン -->
+      <a href="{% url 'logout' %}" class="btn btn-secondary btn-lg shadow">🔓 ログアウト</a>
+      <!-- 管理者ユーザの場合、管理者画面ボタンを表示 -->
+      {% if user.is_staff %}
+        <a href="/admin/" class="btn btn-dark btn-lg shadow">🛠 管理者画面</a>
+      {% endif %}
+    </div>
 
     {% else %}
-      <div class="text-center mt-3">
-        <div class="welcome-message">ログインしていません。</div>
+      <div class="alert alert-warning text-center">
+        ログインしていません。
+      </div>
+
+      <div class="text-center">
         <a href="{% url 'login' %}" class="btn btn-success btn-lg">🔐 ログインページへ</a>
       </div>
     {% endif %}
-
   </div>
 
 </body>

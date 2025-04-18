@@ -21,5 +21,5 @@ def record_attendance(request, type):
     return redirect('history')  # 登録後は履歴ページへリダイレクト
 
 @login_required
-def home_view(request):
-    return render(request, 'attendance/home.html')
+def dashboard_view(request, type):
+    return render(request, 'attendance/dashboard.html')  
