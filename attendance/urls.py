@@ -11,4 +11,8 @@ urlpatterns = [
     path('record_after_login/<str:direction>', views.record_and_redirect, name='record_after_login'),
     # 履歴を残し、自動でtop画面に遷移
     path('record_done/', views.record_done, name='record_done'),
+    # 履歴を残し、自動でtop画面に遷移
+    path('record_attend/', views.record_attend, name='record_attend'),
+    # 履歴を残し、自動でtop画面に遷移
+    path('record_leave/', views.record_leave, name='record_leave'),
 ]

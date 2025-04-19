@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from .models import AttendanceLog
 from django.contrib.auth import logout
 from .weather import get_osaka_weather
-from django.utils.timezone import now
+from django.utils import timezone
+from django.contrib import messages
 from datetime import  date
 
 
@@ -28,12 +29,54 @@ def dashboard_view(request):
 
 @login_required
 def record_and_redirect(request, direction):
-    if direction in ['in', 'out']:
-        AttendanceLog.objects.create(user=request.user, type=direction)
-    # 打刻完了画面へ
+    today = timezone.now().date()
+    if direction == "in":
+        # すでに今日出勤済みならスキップ
+        already_clocked_in = AttendanceLog.objects.filter(
+            user=request.user,
+            type='in',
+            timestamp__date=today
+        ).exists()
+        
+        if already_clocked_in:
+            return redirect('record_attend')
+        
+        AttendanceLog.objects.create(
+            user=request.user,
+            type='in',
+            timestamp=timezone.now()
+        )
+    
+    elif direction == "out":
+        already_clocked_out = AttendanceLog.objects.filter(
+            user=request.user,
+            type='out',
+            timestamp__date=today
+        ).exists()
+
+        if already_clocked_out:
+            return redirect('record_leave') 
+
+        # 出勤ログを保存
+        AttendanceLog.objects.create(
+            user=request.user,
+            type='out',
+            timestamp=timezone.now()
+        )
+        
     return redirect('record_done')
 
 @login_required
 def record_done(request):
     logout(request)
     return render(request, 'attendance/record_done.html')
+
+@login_required
+def record_attend(request):
+    logout(request)
+    return render(request, 'attendance/record_attend.html')
+
+@login_required
+def record_leave(request):
+    logout(request)
+    return render(request, 'attendance/record_leave.html')
