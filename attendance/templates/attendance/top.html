@@ -275,59 +275,30 @@
         <!-- 勤怠管理セクション -->
         <div class="attendance-section">
           <h2 class="section-title attendance-title">勤怠管理システム</h2>
+          <form action="{% url 'record_attendance' 'in' %}" method="post" class="mb-3">
+            <a href="{% url 'login' %}?next={% url 'record_after_login' 'in' %}" class="btn btn-success">🟢 出勤</a>
+          </form>
           
-          {% if user.is_authenticated %}
-            <div class="welcome-message">
-              ようこそ、<strong>{{ user.username }}</strong> さん
-            </div>
+          <form action="{% url 'record_attendance' 'out' %}" method="post" class="mb-4">
+            <a href="{% url 'login' %}?next={% url 'record_after_login' 'out' %}" class="btn btn-danger">🔴 退勤</a>
+          </form>
+          
+          <div class="btn-section">
+            <a href="{% url 'history' %}" class="btn btn-primary">
+              <i class="fas fa-history"></i> 勤怠履歴
+            </a>
             
-            <form action="{% url 'record_attendance' 'in' %}" method="post" class="mb-3">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-success btn-attendance w-100">
-                <i class="fas fa-sign-in-alt"></i> 出勤する
-              </button>
-            </form>
-            
-            <form action="{% url 'record_attendance' 'out' %}" method="post" class="mb-4">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger btn-attendance w-100">
-                <i class="fas fa-sign-out-alt"></i> 退勤する
-              </button>
-            </form>
-            
-            <div class="btn-section">
-              <a href="{% url 'history' %}" class="btn btn-primary">
-                <i class="fas fa-history"></i> 勤怠履歴
-              </a>
-              
-              <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
-                <i class="fas fa-chart-line"></i> ダッシュボード
-              </a>
-              
-              <a href="{% url 'logout' %}" class="btn btn-secondary">
-                <i class="fas fa-lock-open"></i> ログアウト
-              </a>
-              
-              {% if user.is_staff %}
-                <a href="/admin/" class="btn btn-dark">
-                  <i class="fas fa-tools"></i> 管理者画面
-                </a>
-              {% endif %}
-            </div>
-          {% else %}
-            <div class="alert alert-warning text-center">
-              ログインしていません。
-            </div>
-            <div class="text-center">
-              <a href="{% url 'login' %}" class="btn btn-success btn-lg">
-                <i class="fas fa-lock"></i> ログインページへ
-              </a>
-            </div>
-          {% endif %}
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+              <i class="fas fa-chart-line"></i> ダッシュボード
+            </a>
+            <a href="/admin/" class="btn btn-dark">
+              <i class="fas fa-tools"></i> 管理者画面
+            </a>
+          </div>
         </div>
         
         <!-- 天気情報セクション -->
-        {% if weather_info and user.is_authenticated %}
+        {% if weather_info %}
         <div class="weather-section">
           <h2 class="section-title weather-title">
             大阪の天気

@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.db import models
+from django.contrib.auth.models import User
+
 class AttendanceLog(models.Model):
     TYPE_CHOICES = [
         ('in', '出勤'),
