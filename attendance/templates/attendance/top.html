@@ -275,11 +275,11 @@
         <!-- 勤怠管理セクション -->
         <div class="attendance-section">
           <h2 class="section-title attendance-title">勤怠管理システム</h2>
-          <form action="{% url 'record_attendance' 'in' %}" method="post" class="mb-3">
+          <form action="{% url 'record_after_login' 'in' %}" method="post" class="mb-3">
             <a href="{% url 'login' %}?next={% url 'record_after_login' 'in' %}" class="btn btn-success">🟢 出勤</a>
           </form>
           
-          <form action="{% url 'record_attendance' 'out' %}" method="post" class="mb-4">
+          <form action="{% url 'record_after_login' 'out' %}" method="post" class="mb-4">
             <a href="{% url 'login' %}?next={% url 'record_after_login' 'out' %}" class="btn btn-danger">🔴 退勤</a>
           </form>
           

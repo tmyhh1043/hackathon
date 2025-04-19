@@ -17,27 +17,19 @@ def top_view(request):
         'weather_info': weather_info
     })
 
-
 @login_required
 def history_view(request):
     logs = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'attendance/history.html', {'logs': logs})
 
 
-@login_required
-def record_attendance(request, type):
-    if type in ['in', 'out']:
-        AttendanceLog.objects.create(user=request.user, type=type)
-    return redirect('history')  # 登録後は履歴ページへリダイレクト
-
-@login_required
 def dashboard_view(request):
     return render(request, 'attendance/dashboard.html')
 
 @login_required
 def record_and_redirect(request, direction):
-    if type in ['in', 'out']:
-        AttendanceLog.objects.create(user=request.user, type=type)
+    if direction in ['in', 'out']:
+        AttendanceLog.objects.create(user=request.user, type=direction)
     # 打刻完了画面へ
     return redirect('record_done')
 
