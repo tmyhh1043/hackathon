@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import AttendanceLog
 from django.contrib.auth import logout
+
+from django.core.paginator import Paginator
 from .weather import get_osaka_weather
 from django.utils import timezone
 from django.contrib import messages
@@ -30,10 +32,24 @@ def top_view(request):
     # 天気情報と出勤中のユーザー情報をテンプレートに渡す
     return render(request, 'attendance/top.html', {'weather_info': weather_info, 'working_users': working_users})
 
+'''
 @login_required
 def history_view(request):
     logs = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'attendance/history.html', {'logs': logs})
+'''
+@login_required
+def history_view(request):
+    if request.user.is_staff: # 管理者アカウントでは全ユーザーの履歴を表示
+        logs_list = AttendanceLog.objects.all().order_by('-timestamp')  # ユーザーの勤怠記録を取得
+    else: # 一般アカウントでは自分の履歴のみ
+        logs_list = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp') 
+    
+    paginator = Paginator(logs_list, 10)  # 1ページあたり10件のログを表示
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # 指定ページのデータを取得
+    
+    return render(request, 'attendance/history.html', {'page_obj': page_obj})
 
 
 def dashboard_view(request):
