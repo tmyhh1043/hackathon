@@ -43,7 +43,7 @@ def history_view(request):
     if request.user.is_staff: # 管理者アカウントでは全ユーザーの履歴を表示
         logs_list = AttendanceLog.objects.all().order_by('-timestamp')  # ユーザーの勤怠記録を取得
     else: # 一般アカウントでは自分の履歴のみ
-        logs_list = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp')  # ユーザーの勤怠記録を取得
+        logs_list = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp') 
     
     paginator = Paginator(logs_list, 10)  # 1ページあたり10件のログを表示
     page_number = request.GET.get('page')
