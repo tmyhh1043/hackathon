@@ -13,10 +13,22 @@ def top_view(request):
     # 大阪の天気情報を取得
     weather_info = get_osaka_weather()
     
-    # 既存の処理と統合
-    return render(request, 'attendance/top.html', {
-        'weather_info': weather_info
-    })
+    # 今日の日付を取得
+    today = date.today()
+    
+    # 出勤中のユーザー情報を取得
+    working_users = AttendanceLog.objects.filter(
+        type='in',  # 出勤ログのみ
+        timestamp__date=today  # 今日のデータのみ
+    ).exclude(  # 退勤済みのユーザを除外
+        user__in=AttendanceLog.objects.filter(
+            type='out',
+            timestamp__date=today
+        ).values('user')
+    )
+    
+    # 天気情報と出勤中のユーザー情報をテンプレートに渡す
+    return render(request, 'attendance/top.html', {'weather_info': weather_info, 'working_users': working_users})
 
 @login_required
 def history_view(request):
