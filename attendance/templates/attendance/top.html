@@ -240,6 +240,90 @@
       border-radius: 50%;
       animation: snow linear infinite;
     }
+
+    .working-users {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .working-users-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .working-users-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      background: #edf2f7;
+      border-radius: 8px;
+      padding: 10px 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .user-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-icon {
+      font-size: 2rem;
+      color: #4299e1;
+      margin-right: 10px;
+    }
+
+    .user-name {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #2d3748;
+    }
+
+    .no-users {
+      font-size: 1rem;
+      color: #666;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    /* 現在時刻のスタイリング */
+    .current-time-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(66, 153, 225, 0.1); /* 薄い青の背景 */
+      border: 1px solid #4299e1; /* 青い枠線 */
+      border-radius: 8px;
+      padding: 10px 20px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .current-time-icon {
+      font-size: 1.5rem;
+      color: #4299e1; /* アイコンの色 */
+      margin-right: 10px;
+    }
+
+    .current-time-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2d3748; /* テキストの色 */
+      font-family: 'Noto Sans JP', sans-serif;
+    }
     
     @keyframes rain {
       0% { transform: translateY(0); }
@@ -275,6 +359,33 @@
         <!-- 勤怠管理セクション -->
         <div class="attendance-section">
           <h2 class="section-title attendance-title">勤怠管理システム</h2>
+
+          <!-- 現在時刻の表示 -->
+          <div class="current-time-container">
+            <i class="fas fa-clock current-time-icon"></i>
+            <span id="current-time" class="current-time-text"></span>
+          </div>
+
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              function updateTime() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const currentTime = `${hours}:${minutes}:${seconds}`;
+                document.getElementById('current-time').textContent = currentTime;
+              }
+        
+              // 初回の時刻表示
+              updateTime();
+        
+              // 1秒ごとに時刻を更新
+              setInterval(updateTime, 1000);
+            });
+          </script>
+
+          <!-- 出勤ボタンと退勤ボタン -->
           <form action="{% url 'record_after_login' 'in' %}" method="post" class="mb-3">
             <a href="{% url 'login' %}?next={% url 'record_after_login' 'in' %}" class="btn btn-success">🟢 出勤</a>
           </form>
@@ -294,6 +405,20 @@
             <a href="/admin/" class="btn btn-dark">
               <i class="fas fa-tools"></i> 管理者画面
             </a>
+          </div>
+          <!-- 出勤中のユーザリスト -->
+          <div class = "working-users">
+            <h5 class="working-users-title">現在出勤中のユーザ</h5>
+            <div class="working-users-list">
+              {% for user in working_users %}
+              <div class="user-card">
+                <i class="fas fa-user-circle user-icon"></i>
+                <span class="user-name">{{ user.user.username }}</span>
+              </div>
+              {% empty %}
+                <p class="no-users">出勤中のユーザはいません。</p>
+              {% endfor %}
+            </div>
           </div>
         </div>
         
@@ -342,7 +467,6 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // 天気コードから背景とアニメーションを設定
-      {% if weather_info %}
         const weatherCode = "{{ weather_info.today.weather_code }}";
         const weatherText = "{{ weather_info.today.weather }}";
         const adviceElement = document.getElementById('weather-advice-text');
@@ -429,7 +553,6 @@
             animationContainer.appendChild(snowflake);
           }
         }
-      {% endif %}
     });
   </script>
 </body>
