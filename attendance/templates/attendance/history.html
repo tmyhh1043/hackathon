@@ -1,24 +1,118 @@
-<!-- history.html -->
-<h2>勤怠履歴</h2>
-<table border="1">
-  <tr>
-    <th>日付</th>
-    <th>時間</th>
-    <th>種別</th>
-  </tr>
-  {% for log in logs %}
-    <tr>
-      <td>{{ log.timestamp|date:"Y-m-d" }}</td>
-      <td>{{ log.timestamp|date:"H:i" }}</td>
-      <td>{{ log.get_type_display }}</td>
-    </tr>
-  {% empty %}
-    <tr><td colspan="3">勤怠記録がありません。</td></tr>
-  {% endfor %}
-</table>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勤怠履歴</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            table-layout: fixed; /* セル幅を統一 */
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .status-attendance {
+            color: green;
+            font-weight: bold;
+        }
+        .status-leave {
+            color: red;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination a {
+            padding: 8px 12px;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        .pagination a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
 
-<p>
-  <a href="{% url 'top' %}">
-    <button type="button">打刻画面に戻る</button>
-  </a>
-</p>
+    <h2>勤怠履歴</h2>
+    <table>
+        <tr>
+            <th>ユーザ</th>
+            <th>日付</th>
+            <th>時間</th>
+            <th>種別</th>
+        </tr>
+        {% for log in page_obj %}
+        <tr>
+            <td>{{ log.user }}</td>
+            <td>{{ log.timestamp|date:"Y-m-d(D)" }}</td>
+            <td>{{ log.timestamp|date:"H:i" }}</td>
+            <td class="{% if log.get_type_display == '出勤' %}status-attendance{% elif log.get_type_display == '退勤' %}status-leave{% endif %}">
+                {{ log.get_type_display }}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">勤怠記録がありません。</td></tr>
+        {% endfor %}
+    </table>
+
+    <!-- ページネーション -->
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">最初</a>
+            <a href="?page={{ page_obj.previous_page_number }}">前</a>
+        {% endif %}
+
+        <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">次</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
+        {% endif %}
+    </div>
+
+    <p>
+        <a href="{% url 'top' %}">
+            <button type="button">打刻画面に戻る</button>
+        </a>
+    </p>
+
+</body>
+</html>
