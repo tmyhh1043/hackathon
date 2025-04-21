@@ -289,7 +289,7 @@
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .user-card:hover {
+    .user-card {
       transform: translateY(-3px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
@@ -474,14 +474,6 @@
           </script>
 
           <!-- 出勤ボタンと退勤ボタン -->
-          <form action="{% url 'record_after_login' 'in' %}" method="post" class="mb-3">
-            <a href="{% url 'login' %}?next={% url 'record_after_login' 'in' %}" class="btn btn-success">🟢 出勤</a>
-          </form>
-          
-          <form action="{% url 'record_after_login' 'out' %}" method="post" class="mb-4">
-            <a href="{% url 'login' %}?next={% url 'record_after_login' 'out' %}" class="btn btn-danger">🔴 退勤</a>
-          </form>
-          
           <div class="attendance-buttons">
             <form action="{% url 'record_after_login' 'in' %}" method="post">
               <a href="{% url 'login' %}?next={% url 'record_after_login' 'in' %}" class="btn btn-success btn-attendance">
