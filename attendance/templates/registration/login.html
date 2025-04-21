@@ -1,7 +1,61 @@
 <!-- login.html -->
 <h2>ログイン</h2>
+<!-- <form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">ログイン</button>
+</form> -->
+
+
+<!-- templates/registration/login.html -->
+
+<!-- 顔認証の映像表示とキャプチャ用 -->
+<video id="camera" autoplay playsinline width="320" height="240"></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">ログイン</button>
 </form>
+
+<script>
+  // CSRFトークン取得用
+  function getCSRFToken() {
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  }
+
+  // カメラ起動と送信処理
+  const video = document.getElementById('camera');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // カメラから画像を定期的にキャプチャして送信
+  navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+    video.srcObject = stream;
+
+    setInterval(() => {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const base64Image = canvas.toDataURL('image/jpeg');
+
+      fetch("{% url 'face_login_api' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken(),
+        },
+        body: JSON.stringify({ image_data: base64Image })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("ログイン成功！");
+          window.location.href = "/";
+        } else {
+          console.log("認証失敗:", data.message || data.error);
+        }
+      });
+    }, 3000); // 3秒ごとに送信（調整可）
+  });
+</script>
