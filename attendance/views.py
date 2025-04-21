@@ -3,8 +3,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import AttendanceLog
 from django.contrib.auth import logout
+<<<<<<< HEAD
 
 from django.core.paginator import Paginator
+=======
+>>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
 from .weather import get_osaka_weather
 from django.utils import timezone
 from django.contrib import messages
@@ -15,6 +18,7 @@ def top_view(request):
     # 大阪の天気情報を取得
     weather_info = get_osaka_weather()
     
+<<<<<<< HEAD
     # 今日の日付を取得
     today = date.today()
     
@@ -33,10 +37,18 @@ def top_view(request):
     return render(request, 'attendance/top.html', {'weather_info': weather_info, 'working_users': working_users})
 
 '''
+=======
+    # 既存の処理と統合
+    return render(request, 'attendance/top.html', {
+        'weather_info': weather_info
+    })
+
+>>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
 @login_required
 def history_view(request):
     logs = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'attendance/history.html', {'logs': logs})
+<<<<<<< HEAD
 '''
 @login_required
 def history_view(request):
@@ -50,6 +62,8 @@ def history_view(request):
     page_obj = paginator.get_page(page_number)  # 指定ページのデータを取得
     
     return render(request, 'attendance/history.html', {'page_obj': page_obj})
+=======
+>>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
 
 
 def dashboard_view(request):
@@ -107,4 +121,52 @@ def record_attend(request):
 @login_required
 def record_leave(request):
     logout(request)
+<<<<<<< HEAD
     return render(request, 'attendance/record_leave.html')
+=======
+    return render(request, 'attendance/record_leave.html')
+
+
+from collections import defaultdict
+from datetime import timedelta
+
+@login_required
+def history_view(request):
+    logs = AttendanceLog.objects.filter(user=request.user).order_by('timestamp')
+
+    # 出退勤のペア作成
+    paired_sessions = []
+    current_in = None
+    for log in logs:
+        if log.type == 'in':
+            current_in = log.timestamp
+        elif log.type == 'out' and current_in:
+            paired_sessions.append((current_in, log.timestamp))
+            current_in = None
+
+    weekdays = ['月', '火', '水', '木', '金', '土', '日']
+    weekly_minutes = defaultdict(int)
+    presence_distribution = {day: [] for day in weekdays}
+
+    for start, end in paired_sessions:
+        weekday = weekdays[start.weekday()]
+        duration = int((end - start).total_seconds() // 60)
+        weekly_minutes[weekday] += duration
+
+        start_hour = round(start.hour + start.minute / 60, 2)
+        end_hour = round(end.hour + end.minute / 60, 2)
+        presence_distribution[weekday].append([start_hour, end_hour])
+
+    # 円グラフ用：学習済み合計時間と残り時間
+    total_minutes = sum(weekly_minutes.values())
+    remaining_minutes = max(0, 2400 - total_minutes)  # 2400分 = 40時間
+
+    return render(request, 'attendance/history.html', {
+        'logs': logs,
+        'weekly_labels': list(weekly_minutes.keys()),
+        'weekly_data': list(weekly_minutes.values()),
+        'presence_distribution': presence_distribution,
+        'total_minutes': total_minutes,
+        'remaining_minutes': remaining_minutes,
+    })
+>>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
