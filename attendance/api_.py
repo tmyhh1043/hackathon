@@ -13,7 +13,13 @@ import warnings
 # 顔画像が保存されている場所
 # KNOWN_FACE_PATH = "attendance/face_images/user1.jpg"  # 必要に応じて動的にすることも可能
 # KNOWN_FACE_PATH = "C:/Users/shouh/hackathon/attendance/face_images/user1.jpg"
-username = []
+username = {}
+username[0] = '松井'
+username[1] = '藤井'
+username[2] = '岡田'
+username[3] = '坊山'
+username[4] = '山本'
+
 
 model_name = 'allcnn'
 cos_sim = nn.CosineSimilarity()
@@ -70,7 +76,7 @@ def face_login_api(request):
 
             if result != -1:
                 print(output)
-                print(f'in--{result}')
+                print(f'{username[result]}が検出されました')
                 # 顔一致 → ログイン処理（ここではuser1に固定）
                 user = User.objects.get(username='imgproc')
                 login(request, user)
