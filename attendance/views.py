@@ -3,7 +3,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import AttendanceLog
 from django.contrib.auth import logout
-
 from django.core.paginator import Paginator
 from .weather import get_osaka_weather
 from django.utils import timezone
@@ -108,3 +107,8 @@ def record_attend(request):
 def record_leave(request):
     logout(request)
     return render(request, 'attendance/record_leave.html')
+
+@login_required
+def logout_and_redirect_to_top(request):
+    logout(request)
+    return redirect('top')  # 打刻画面にリダイレクト

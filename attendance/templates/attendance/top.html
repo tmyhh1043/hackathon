@@ -273,7 +273,7 @@
       flex: 0 0 auto;
     }
 
-    .user-card:hover {
+    .user-card {
       transform: translateY(-3px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
@@ -467,7 +467,7 @@
               <img src="{{ weather_info.today.icon_url }}" alt="{{ weather_info.today.weather }}" class="weather-icon">
               <div>
                 <div class="weather-description">{{ weather_info.today.weather }}</div>
-                <div style="font-size: 1.8rem; font-weight: 600; color: #e53e3e;">最高気温: {{ weather_info.today.temperature_max }}℃</div>
+                <div style="font-size: 1.8rem; font-weight: 600; color: #e53e3e;">現在の気温: {{ weather_info.today.temperature }}℃</div>
               </div>
             </div>
             

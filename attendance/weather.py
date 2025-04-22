@@ -13,6 +13,20 @@ def get_osaka_weather():
     # 大阪のエリアコード
     area_code = "270000"
     
+    API_KEY = "e44245e5f8c98c1e7b18f78edeab9c59"
+    CITY = "Osaka"
+    URL = f"https://api.openweathermap.org/data/2.5/weather?q={CITY},JP&appid={API_KEY}&units=metric"
+    
+    response = requests.get(URL)
+
+    if response.status_code == 200:
+        data = response.json()
+        temp = data['main']['temp']
+        temp_rounded = round(temp, 1)
+    else:
+        print("エラー:", response.status_code)
+        print("レスポンス内容:", response.text)
+        
     # APIエンドポイント
     forecast_url = f"https://www.jma.go.jp/bosai/forecast/data/forecast/{area_code}.json"
     overview_url = f"https://www.jma.go.jp/bosai/forecast/data/overview_forecast/{area_code}.json"
@@ -76,23 +90,8 @@ def get_osaka_weather():
                         if len(area['weatherCodes']) >= 2:
                             weather_info['tomorrow']['weather_code'] = area['weatherCodes'][1]
                             weather_info['tomorrow']['icon_url'] = f"https://www.jma.go.jp/bosai/forecast/img/{area['weatherCodes'][1]}.svg"
-                    
-                    # 気温データの取得
-                    if 'temps' in area or 'tempsMin' in area or 'tempsMax' in area:
-                        if 'temps' in area and len(area['temps']) >= 4:
-                            # この形式の場合は、今日の最低気温、今日の最高気温、明日の最低気温、明日の最高気温の順
-                            weather_info['today']['temperature_min'] = area['temps'][0]
-                            weather_info['today']['temperature_max'] = area['temps'][1]
-                            weather_info['tomorrow']['temperature_min'] = area['temps'][2]
-                            weather_info['tomorrow']['temperature_max'] = area['temps'][3]
-                        elif 'tempsMin' in area and 'tempsMax' in area:
-                            # 最低気温と最高気温が別々のフィールドに格納されている場合
-                            if len(area['tempsMin']) >= 2 and len(area['tempsMax']) >= 2:
-                                weather_info['today']['temperature_min'] = area['tempsMin'][0]
-                                weather_info['today']['temperature_max'] = area['tempsMax'][0]
-                                weather_info['tomorrow']['temperature_min'] = area['tempsMin'][1]
-                                weather_info['tomorrow']['temperature_max'] = area['tempsMax'][1]
-        
+
+                weather_info['today']['temperature'] = temp_rounded
         return weather_info
         
     except Exception as e:
@@ -103,16 +102,7 @@ def get_osaka_weather():
                 'date': datetime.now().strftime('%Y-%m-%d'),
                 'weather': '情報取得エラー',
                 'weather_code': '100',
-                'temperature_min': None,
-                'temperature_max': None,
-                'icon_url': "https://www.jma.go.jp/bosai/forecast/img/100.svg"
-            },
-            'tomorrow': {
-                'date': (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d'),
-                'weather': '情報取得エラー',
-                'weather_code': '100',
-                'temperature_min': None,
-                'temperature_max': None,
+                'temperature': None,
                 'icon_url': "https://www.jma.go.jp/bosai/forecast/img/100.svg"
             },
             'overview': {
@@ -120,42 +110,3 @@ def get_osaka_weather():
                 'publishingOffice': '大阪管区気象台'
             }
         }
-
-def get_weather_advice(weather_text, weather_code, temp_max=None):
-    """
-    天気情報に基づいて、適切なアドバイスを返す
-    
-    Args:
-        weather_text (str): 天気の説明テキスト
-        weather_code (str): 天気コード
-        temp_max (str, optional): 最高気温. デフォルトはNone
-    
-    Returns:
-        str: アドバイステキスト
-    """
-    # 雨の場合
-    if '雨' in weather_text or weather_code.startswith('3') or weather_code.startswith('4'):
-        return '<i class="fas fa-umbrella"></i> 今日は雨の予報です。傘を忘れずに持っていきましょう！また、足元がぬれているかもしれないので、滑らないように注意してください。'
-    
-    # 雪の場合
-    elif '雪' in weather_text or weather_code.startswith('6') or weather_code.startswith('7'):
-        return '<i class="fas fa-snowflake"></i> 今日は雪の予報です。暖かい服装と滑りにくい靴で出かけましょう。路面が凍結している場合があるので、歩行時や運転時は十分注意してください。'
-    
-    # 雷の場合
-    elif '雷' in weather_text or weather_code.startswith('8'):
-        return '<i class="fas fa-bolt"></i> 今日は雷を伴う天気です。外出時は十分に注意し、できるだけ建物の中で過ごすようにしましょう。'
-    
-    # 曇りの場合
-    elif '曇' in weather_text or weather_code.startswith('2'):
-        return '<i class="fas fa-cloud"></i> 今日は曇りの予報です。急な天候の変化に備えて、折りたたみ傘があると安心かもしれません。'
-    
-    # 晴れの場合
-    elif '晴' in weather_text or weather_code.startswith('1'):
-        if temp_max and temp_max.isdigit() and int(temp_max) > 28:
-            return '<i class="fas fa-sun"></i> 今日は晴れで暑くなりそうです。水分補給を忘れずに、日焼け対策もしっかりしましょう。熱中症にご注意ください。'
-        else:
-            return '<i class="fas fa-sun"></i> 今日は晴れの良い天気です。気持ちの良い一日になりそうですね！'
-    
-    # その他
-    else:
-        return '今日も一日お疲れ様です。体調に気をつけて過ごしましょう。'
