@@ -63,7 +63,7 @@
 
     /* メインコンテンツを中央に配置するためのコンテナ */
     .main-container {
-      width: 100%;
+      width: 100vw;
       padding: 0%;
       margin: 0 auto;
       position: relative;
@@ -78,9 +78,8 @@
       overflow: hidden;
 
       /* 相対的な大きさを設定 */
-      width: 90%;
-      height: 100%; /* 高さを100%に設定 */
-      min-height: 800px; /* 最小高さを設定 */
+      width: 80vw;
+      height: 80vh; /* 高さを100%に設定 */
       margin: 0 auto; 
     }
     
@@ -91,47 +90,22 @@
       grid-template-columns: 1fr 1fr;
     }
     
-    /* 各セクションのスタイル */
-    /* 勤怠管理セクションと天気情報セクションのスタイル */
+    /* 画面左側のセクション */
     .attendance-section {
-      height: 100%;
+      height: 100vh;
       flex-direction: column;
       justify-content: space-between;
-    }
-    
-    /* 出勤者のスタイル */
-    .people-section {
-      background: rgba(0, 0, 0, 0.05);
-      padding: 5%;
-      border-left: 1px solid rgba(0, 0, 0, 0.1);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
     }
 
     /* タイトルの文字スタイル */
     .main-title {
       padding: 3% 0 1.5% 0;
-      font-size: 3.5rem;
+      font-size: 200%;
       font-weight: 1000;
       margin-bottom: 20px;
       text-align: center;
       font-weight: bold;
       color: #2c3e50;
-    }
-    
-    /* 今日の天気のタイトルスタイル */
-    .weather-title {
-      font-size: 2.0rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #2c3e50;
-      display: block;
-      font-weight: bold;
-      margin-top: 5px;
     }
 
     /* 今日の日付のスタイル */
@@ -139,9 +113,42 @@
       font-size: 2.0rem;
       display: block;
       font-weight: normal;
-      margin-top: 5px;
+      margin-top: 0%;
       color: #685a5a;
       text-align: center;
+    }
+
+    /* 現在時刻のスタイリング */
+    .current-time-container {
+      display: flex;
+      align-items: center; /* 縦方向の中央揃え */
+      justify-content: center; /* 横方向の中央揃え */
+      background: rgba(66, 153, 225, 0.1); /* 薄い青の背景 */
+      border: 1px solid #4299e1; /* 青い枠線 */
+      border-radius: 8px;
+      padding: 1%;
+      margin-top: 1%;
+      margin-bottom: 3%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 90%; /* コンテナの幅を指定 */
+      height: auto; /* 高さを自動調整 */
+      margin-left: auto; /* 左右中央揃え */
+      margin-right: auto; /* 左右中央揃え */
+    }
+
+    /* 現在時刻のアイコン */
+    .current-time-icon {
+      font-size: 1.5rem;
+      color: #4299e1; /* アイコンの色 */
+      margin-right: 1%;
+    }
+
+    /* 現在時刻のテキスト */
+    .current-time-text {
+      font-size: 2.0rem;
+      font-weight: 600;
+      color: #2d3748; /* テキストの色 */
+      font-family: 'Noto Sans JP', sans-serif;
     }
 
     /* 出勤ボタンと退勤ボタンのスタイル */
@@ -151,12 +158,13 @@
       width: 100%;
       margin: 0 auto;
       justify-content: center;
-      gap: 3%
+      gap: 7.5%
     }
 
+    /* 出勤・退勤の文字 */
     .btn-attendance {
-      padding: 20px 30px;
-      font-size: 50px;
+      padding: 8vh 5vw;
+      font-size: 300%;
       border-radius: 12px;
       margin-bottom: 20px;
       transition: all 0.3s ease;
@@ -165,7 +173,6 @@
       align-items: center;
       width: 100%;
     }
-    
     /* ボタンにホバーしたときのアニメーション効果 */
     /* ボタンが少し浮き上がり、影が強調される */
     .btn-attendance:hover {
@@ -173,93 +180,17 @@
       box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
     
-    .weather-display {
-      background: rgba(255, 255, 255, 0.9); /* 白い背景 */
-      padding: 1%; /* 内側の余白 */
-      border-radius: 20px; /* 角を丸くする */
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* ボックスシャドウ */
-      text-align: center;
-      margin-bottom: 2%; /* 下に余白を追加 */
+    /* 画面右側のセクション */
+    .people-section {
+      background: rgba(246, 248, 150, 0.05);
+      padding: 2% 3%;
+      border-left: 1px solid rgba(0, 0, 0, 0.1);
+      position: relative;
       display: flex;
       flex-direction: column;
+      justify-content: flex-start;
       align-items: center;
-      width: 100%;
-    }
-     
-    /* 天気のアイコン表示 */
-    .weather-icon {
-      width: 90%;
-      height: 90%;
-      margin: 0 auto 3%;
-    }
-
-    .weather-gap{
-      display: flex; 
-      align-items: center; 
-      gap: 4%;
-    }
-    
-    .weather-description {
-      font-size: 1.5rem;
-      font-weight: 500;
-      margin-bottom: 5px;
-    }
-
-    .temp-description {
-      font-size: 1.5rem; 
-      font-weight: 500; 
-      color: #e53e3e;
-    }
-    
-    .weather-temp {
-      display: flex;
-      justify-content: center;
-      margin: 15px 0;
-    }
-    
-    .temp-item {
-      text-align: center;
-    }
-    
-    .temp-label {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 5px;
-    }
-    
-    .temp-value {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: #e53e3e;
-    }
-
-    .weather-animation {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    
-    .raindrop {
-      position: absolute;
-      top: -10px;
-      width: 1px;
-      height: 15px;
-      background: rgba(255, 255, 255, 0.7);
-      animation: rain linear infinite;
-    }
-    
-    .snowflake {
-      position: absolute;
-      top: -10px;
-      width: 5px;
-      height: 5px;
-      background: white;
-      border-radius: 50%;
-      animation: snow linear infinite;
+      gap: 3%;  
     }
 
     .working-users {
@@ -267,16 +198,15 @@
       border-radius: 20px;
       padding: 3%; 
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      height: 100%;
-      min-height: 400px; /* 最小高さを設定 */
       width: 100%;
+      height: 40%;
       display: flex;
       flex-direction: column;
-      margin-bottom: 5%;
+      margin-bottom: 0.5%;
     }
 
     .working-users-title {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 700;
       color: #2c3e50;
       margin-bottom: 3%;
@@ -294,6 +224,7 @@
       padding: 5px;
     }
 
+    /* ユーザカードのスタイル */
     .user-card {
       display: flex;
       align-items: center;
@@ -302,8 +233,6 @@
       padding: 8px 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      margin: 3px;
-      flex: 0 0 auto;
       transform: translateY(-3px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
@@ -326,39 +255,76 @@
       text-align: center;
       margin-top: 10px;
     }
+    
+    .weather-display {
+      background: rgba(255, 255, 255, 0.9); /* 白い背景 */
+      border-radius: 20px; /* 角を丸くする */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* ボックスシャドウ */
+      text-align: center;
+      flex-direction: column;
+      width: 100%;
+      height: 35%;
+    }
 
-    /* 現在時刻のスタイリング */
-    .current-time-container {
+    /* 今日の天気のタイトルスタイル */
+    .weather-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2%;
+      text-align: center;
+      color: #2c3e50;
+      display: block;
+      font-weight: bold;
+      margin-top: 3%;
+    }
+
+    /* 天気のアイコン表示 */
+    .weather-icon {
+      width: 15vw;
+      height: 15vh;
+    }
+    
+    .weather-description {
+      font-size: 1.8rem;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .temp-description {
+      font-size: 1.8rem; 
+      font-weight: 500; 
+      color: #e53e3e;
+    }
+    
+    .temp-label {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .weather-temp{
       display: flex;
-      align-items: center; /* 縦方向の中央揃え */
-      justify-content: center; /* 横方向の中央揃え */
-      background: rgba(66, 153, 225, 0.1); /* 薄い青の背景 */
-      border: 1px solid #4299e1; /* 青い枠線 */
-      border-radius: 8px;
-      padding: 1%;
-      margin-top: 1%;
-      margin-bottom: 3%;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 90%; /* コンテナの幅を指定 */
-      min-width: 500px; /* 最大幅を制限 */
-      height: auto; /* 高さを自動調整 */
-      margin-left: auto; /* 左右中央揃え */
-      margin-right: auto; /* 左右中央揃え */
+      justify-content: center;
+      flex-direction: column;
     }
-
-    /* 現在時刻のアイコン */
-    .current-time-icon {
-      font-size: 1.5rem;
-      color: #4299e1; /* アイコンの色 */
-      margin-right: 1%;
+    
+    .raindrop {
+      position: absolute;
+      top: -10px;
+      width: 1px;
+      height: 15px;
+      background: rgba(255, 255, 255, 0.7);
+      animation: rain linear infinite;
     }
-
-    /* 現在時刻のテキスト */
-    .current-time-text {
-      font-size: 2.0rem;
-      font-weight: 600;
-      color: #2d3748; /* テキストの色 */
-      font-family: 'Noto Sans JP', sans-serif;
+    
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      width: 5px;
+      height: 5px;
+      background: white;
+      border-radius: 50%;
+      animation: snow linear infinite;
     }
     
     @keyframes rain {
@@ -373,13 +339,6 @@
       100% { 
         transform: translateY(calc(100vh + 10px)) translateX(20px);
       }
-    }
-
-    .weather-temp{
-      display: flex;
-      justify-content: center;
-      margin: 15px 0;
-      flex-direction: column;
     }
     
     /* ハンバーガーメニュー */
@@ -422,23 +381,6 @@
       margin-right: 10px;
       width: 20px;
       text-align: center;
-    }
-    
-    /* レスポンシブデザイン */
-    @media (max-width: 768px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .people-section {
-        border-left: none;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-      }
-      
-      /* .btn-attendance {
-        padding: 15px 20px;
-        font-size: 1.3rem;
-      } */
     }
   </style>
 </head>
@@ -496,8 +438,6 @@
               </a>
             </form>
           </div>
-
-          
         </div>
         
         <!-- 出勤中のユーザリスト -->
@@ -519,10 +459,10 @@
           {% if weather_info %}
           <div class="weather-display">
             <h2 class="weather-title">今日の天気</h2>
-              <img src="{{ weather_info.today.icon_url }}" alt="{{ weather_info.today.weather }}" class="weather-icon">
-              <div class="weather-temp">
-                <div class="weather-description">{{ weather_info.today.weather }}</div>
-                <div class="temp-description">現在の気温: {{ weather_info.today.temperature }}℃</div>
+            <img src="{{ weather_info.today.icon_url }}" alt="{{ weather_info.today.weather }}" class="weather-icon">
+            <div class="weather-temp">
+              <div class="weather-description">{{ weather_info.today.weather }}</div>
+              <div class="temp-description">現在の気温: {{ weather_info.today.temperature }}℃</div>
             </div>
           </div>
           {% endif %}
