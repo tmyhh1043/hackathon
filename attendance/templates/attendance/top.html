@@ -7,6 +7,7 @@
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Google Fonts: Noto Sans JP -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -60,13 +61,14 @@
       color: #fff;
     }
 
+    /* メインコンテンツを中央に配置するためのコンテナ */
     .main-container {
-      width: 100%;
-      max-width: 1000px;
-      padding: 20px;
+      width: 100vw;
+      padding: 0%;
       margin: 0 auto;
+      position: relative;
     }
-
+    /* ダッシュボード全体を囲むカードのスタイル */
     .dashboard-card {
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(8px);
@@ -74,104 +76,224 @@
       border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       overflow: hidden;
+
+      /* 相対的な大きさを設定 */
+      width: 80vw;
+      height: 80vh; /* 高さを100%に設定 */
+      margin: 0 auto; 
     }
     
+    /* ダッシュボードのグリッドレイアウト */
+    /* 2列構成で、各列が均等に分割される */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 3fr 2fr;
+      grid-template-columns: 1fr 1fr;
     }
     
+    /* 画面左側のセクション */
     .attendance-section {
-      padding: 30px;
+      height: 100vh;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    
-    .weather-section {
-      background: rgba(0, 0, 0, 0.05);
-      padding: 30px;
-      border-left: 1px solid rgba(0, 0, 0, 0.1);
-      position: relative;
-    }
-    
-    .section-title {
-      font-size: 1.6rem;
-      font-weight: 700;
+
+    /* タイトルの文字スタイル */
+    .main-title {
+      padding: 3% 0 1.5% 0;
+      font-size: 200%;
+      font-weight: 1000;
       margin-bottom: 20px;
       text-align: center;
-    }
-    
-    .attendance-title {
+      font-weight: bold;
       color: #2c3e50;
     }
-    
-    .weather-title {
-      color: #2c3e50;
-    }
-    
-    .weather-title .current-date {
-      font-size: 0.9rem;
+
+    /* 今日の日付のスタイル */
+    .date-title {
+      font-size: 2.0rem;
       display: block;
       font-weight: normal;
-      margin-top: 5px;
-      color: #666;
-    }
-    
-    .welcome-message {
-      background-color: #edf2f7;
-      border-radius: 10px;
-      padding: 12px 20px;
-      font-size: 1rem;
-      color: #2d3748;
-      margin-bottom: 25px;
+      margin-top: 0%;
+      color: #685a5a;
       text-align: center;
-      border-left: 4px solid #4299e1;
     }
-    
-    .btn-attendance {
-      padding: 15px 20px;
-      font-size: 1.1rem;
+
+    /* 現在時刻のスタイリング */
+    .current-time-container {
+      display: flex;
+      align-items: center; /* 縦方向の中央揃え */
+      justify-content: center; /* 横方向の中央揃え */
+      background: rgba(66, 153, 225, 0.1); /* 薄い青の背景 */
+      border: 1px solid #4299e1; /* 青い枠線 */
       border-radius: 8px;
-      margin-bottom: 15px;
-      transition: all 0.3s ease;
-    }
-    
-    .btn-attendance:hover {
-      transform: translateY(-2px);
+      padding: 1%;
+      margin-top: 1%;
+      margin-bottom: 3%;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 90%; /* コンテナの幅を指定 */
+      height: auto; /* 高さを自動調整 */
+      margin-left: auto; /* 左右中央揃え */
+      margin-right: auto; /* 左右中央揃え */
+    }
+
+    /* 現在時刻のアイコン */
+    .current-time-icon {
+      font-size: 1.5rem;
+      color: #4299e1; /* アイコンの色 */
+      margin-right: 1%;
+    }
+
+    /* 現在時刻のテキスト */
+    .current-time-text {
+      font-size: 2.0rem;
+      font-weight: 600;
+      color: #2d3748; /* テキストの色 */
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    /* 出勤ボタンと退勤ボタンのスタイル */
+    .attendance-buttons {
+      padding: 3%;
+      display: flex;
+      width: 100%;
+      margin: 0 auto;
+      justify-content: center;
+      gap: 7.5%
+    }
+
+    /* 出勤・退勤の文字 */
+    .btn-attendance {
+      padding: 8vh 5vw;
+      font-size: 300%;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    /* ボタンにホバーしたときのアニメーション効果 */
+    /* ボタンが少し浮き上がり、影が強調される */
+    .btn-attendance:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
     
-    .btn-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 20px;
+    /* 画面右側のセクション */
+    .people-section {
+      background: rgba(246, 248, 150, 0.05);
+      padding: 2% 3%;
+      border-left: 1px solid rgba(0, 0, 0, 0.1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 3%;  
+    }
+
+    .working-users {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 3%; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      height: 40%;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.5%;
+    }
+
+    .working-users-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 3%;
+      text-align: center;
+    }
+
+    .working-users-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3%;
+      justify-content: center;
+      width: 100%;
+      min-height: 50px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+
+    /* ユーザカードのスタイル */
+    .user-card {
+      display: flex;
+      align-items: center;
+      background: #edf2f7;
+      border-radius: 8px;
+      padding: 8px 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-icon {
+      font-size: 1.5rem;
+      color: #4299e1;
+      margin-right: 8px;
+    }
+
+    .user-name {
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: #2d3748;
+    }
+
+    .no-users {
+      font-size: 1.5rem;
+      color: #666;
+      text-align: center;
+      margin-top: 10px;
     }
     
     .weather-display {
+      background: rgba(255, 255, 255, 0.9); /* 白い背景 */
+      border-radius: 20px; /* 角を丸くする */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* ボックスシャドウ */
       text-align: center;
-      margin-bottom: 20px;
+      flex-direction: column;
+      width: 100%;
+      height: 35%;
     }
-    
+
+    /* 今日の天気のタイトルスタイル */
+    .weather-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2%;
+      text-align: center;
+      color: #2c3e50;
+      display: block;
+      font-weight: bold;
+      margin-top: 3%;
+    }
+
+    /* 天気のアイコン表示 */
     .weather-icon {
-      width: 100px;
-      height: 100px;
-      margin: 0 auto 15px;
+      width: 15vw;
+      height: 15vh;
     }
     
     .weather-description {
-      font-size: 1.3rem;
+      font-size: 1.8rem;
       font-weight: 500;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
-    
-    .weather-temp {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin: 15px 0;
-    }
-    
-    .temp-item {
-      text-align: center;
+
+    .temp-description {
+      font-size: 1.8rem; 
+      font-weight: 500; 
+      color: #e53e3e;
     }
     
     .temp-label {
@@ -179,47 +301,11 @@
       color: #666;
       margin-bottom: 5px;
     }
-    
-    .temp-value {
-      font-size: 1.8rem;
-      font-weight: 600;
-    }
-    
-    .temp-min .temp-value {
-      color: #3182ce;
-    }
-    
-    .temp-max .temp-value {
-      color: #e53e3e;
-    }
-    
-    .weather-advice {
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 10px;
-      padding: 15px;
-      margin-top: 15px;
-      font-size: 0.95rem;
-      border-left: 4px solid #ecc94b;
-    }
-    
-    .weather-advice h5 {
-      font-size: 1rem;
-      margin-bottom: 8px;
-      color: #744210;
-    }
-    
-    .weather-advice p {
-      margin-bottom: 0;
-    }
-    
-    .weather-animation {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
+
+    .weather-temp{
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
     }
     
     .raindrop {
@@ -255,210 +341,223 @@
       }
     }
     
-    /* レスポンシブデザイン */
-    @media (max-width: 768px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .weather-section {
-        border-left: none;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-      }
+    /* ハンバーガーメニュー */
+    .menu-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-button:hover {
+      background-color: rgba(255, 255, 255, 1);
+      transform: scale(1.05);
+    }
+    
+    .offcanvas-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .offcanvas-body .btn {
+      margin-bottom: 10px;
+      width: 100%;
+      text-align: left;
+      padding: 12px 15px;
+    }
+    
+    .offcanvas-body .btn i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
+  <!-- ハンバーガーメニューボタン -->
+  <button class="menu-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+    <i class="fas fa-bars fa-lg"></i>
+  </button>
+  
+  <!-- オフキャンバスメニュー -->
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasMenuLabel">メニュー</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <a href="{% url 'history' %}" class="btn btn-outline-primary">
+        <i class="fas fa-history"></i> 勤怠履歴
+      </a>
+      
+      <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-chart-line"></i> ダッシュボード
+      </a>
+      
+      <a href="/admin/" class="btn btn-outline-dark">
+        <i class="fas fa-tools"></i> 管理者画面
+      </a>
+    </div>
+  </div>
+
   <div class="main-container">
     <div class="dashboard-card">
       <div class="dashboard-grid">
         <!-- 勤怠管理セクション -->
         <div class="attendance-section">
-          <h2 class="section-title attendance-title">勤怠管理システム</h2>
-          
-          {% if user.is_authenticated %}
-            <div class="welcome-message">
-              ようこそ、<strong>{{ user.username }}</strong> さん
-            </div>
-            
-            <form action="{% url 'record_attendance' 'in' %}" method="post" class="mb-3">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-success btn-attendance w-100">
-                <i class="fas fa-sign-in-alt"></i> 出勤する
-              </button>
+          <h2 class="main-title">勤怠管理システム</h2>
+          <h2 class="date-title">{{ weather_info.today.date }}</h2>
+
+          <!-- 現在時刻の表示 -->
+          <div class="current-time-container">
+            <i class="fas fa-clock current-time-icon"></i>
+            <span id="current-time" class="current-time-text"></span>
+          </div>
+
+          <!-- 出勤ボタンと退勤ボタン -->
+          <div class="attendance-buttons">
+            <form action="{% url 'record_after_login' 'in' %}" method="post">
+              <a href="{% url 'login' %}?next={% url 'record_after_login' 'in' %}" class="btn btn-success btn-attendance">
+                <i class="fas fa-sign-in-alt me-2"></i> 出勤
+              </a>
             </form>
-            
-            <form action="{% url 'record_attendance' 'out' %}" method="post" class="mb-4">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-danger btn-attendance w-100">
-                <i class="fas fa-sign-out-alt"></i> 退勤する
-              </button>
+            <form action="{% url 'record_after_login' 'out' %}" method="post">
+              <a href="{% url 'login' %}?next={% url 'record_after_login' 'out' %}" class="btn btn-danger btn-attendance">
+                <i class="fas fa-sign-out-alt me-2"></i> 退勤
+              </a>
             </form>
-            
-            <div class="btn-section">
-              <a href="{% url 'history' %}" class="btn btn-primary">
-                <i class="fas fa-history"></i> 勤怠履歴
-              </a>
-              
-              <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
-                <i class="fas fa-chart-line"></i> ダッシュボード
-              </a>
-              
-              <a href="{% url 'logout' %}" class="btn btn-secondary">
-                <i class="fas fa-lock-open"></i> ログアウト
-              </a>
-              
-              {% if user.is_staff %}
-                <a href="/admin/" class="btn btn-dark">
-                  <i class="fas fa-tools"></i> 管理者画面
-                </a>
-              {% endif %}
-            </div>
-          {% else %}
-            <div class="alert alert-warning text-center">
-              ログインしていません。
-            </div>
-            <div class="text-center">
-              <a href="{% url 'login' %}" class="btn btn-success btn-lg">
-                <i class="fas fa-lock"></i> ログインページへ
-              </a>
-            </div>
-          {% endif %}
+          </div>
         </div>
         
-        <!-- 天気情報セクション -->
-        {% if weather_info and user.is_authenticated %}
-        <div class="weather-section">
-          <h2 class="section-title weather-title">
-            大阪の天気
-            <span class="current-date">{{ weather_info.today.date }}</span>
-          </h2>
-          
-          <div class="weather-display">
-            <img src="{{ weather_info.today.icon_url }}" alt="{{ weather_info.today.weather }}" class="weather-icon">
-            <div class="weather-description">{{ weather_info.today.weather }}</div>
-            
-            <div class="weather-temp">
-              {% if weather_info.today.temperature_min %}
-              <div class="temp-item temp-min">
-                <div class="temp-label">最低気温</div>
-                <div class="temp-value">{{ weather_info.today.temperature_min }}℃</div>
+        <!-- 出勤中のユーザリスト -->
+        <div class="people-section">
+          <div class="working-users">
+            <h2 class="working-users-title">出勤中</h2>
+            <div class="working-users-list">
+              {% for user in working_users %}
+              <div class="user-card">
+                <i class="fas fa-user-circle user-icon"></i>
+                <span class="user-name">{{ user.user.username }}</span>
               </div>
-              {% endif %}
-              
-              {% if weather_info.today.temperature_max %}
-              <div class="temp-item temp-max">
-                <div class="temp-label">最高気温</div>
-                <div class="temp-value">{{ weather_info.today.temperature_max }}℃</div>
-              </div>
-              {% endif %}
+              {% empty %}
+                <p class="no-users">出勤中のユーザはいません。</p>
+              {% endfor %}
             </div>
           </div>
-          
-          <!-- 天気に基づくアドバイス -->
-          <div class="weather-advice">
-            <h5><i class="fas fa-info-circle"></i> 今日のアドバイス</h5>
-            <p id="weather-advice-text">天気に関する情報を読み込み中...</p>
+          <!-- 天気情報セクション -->
+          {% if weather_info %}
+          <div class="weather-display">
+            <h2 class="weather-title">今日の天気</h2>
+            <img src="{{ weather_info.today.icon_url }}" alt="{{ weather_info.today.weather }}" class="weather-icon">
+            <div class="weather-temp">
+              <div class="weather-description">{{ weather_info.today.weather }}</div>
+              <div class="temp-description">現在の気温: {{ weather_info.today.temperature }}℃</div>
+            </div>
           </div>
-          
-          <div class="weather-animation" id="animation-container"></div>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // 天気コードから背景とアニメーションを設定
-      {% if weather_info %}
-        const weatherCode = "{{ weather_info.today.weather_code }}";
-        const weatherText = "{{ weather_info.today.weather }}";
-        const adviceElement = document.getElementById('weather-advice-text');
-        const body = document.body;
-        const animationContainer = document.getElementById('animation-container');
-        
-        // 天気の状態を判断
-        const isRainy = weatherText.includes('雨') || weatherCode.startsWith('3') || weatherCode.startsWith('4');
-        const isSnowy = weatherText.includes('雪') || weatherCode.startsWith('6') || weatherCode.startsWith('7');
-        const isCloudy = weatherText.includes('曇') || weatherCode.startsWith('2');
-        const isSunnyAndCloudy = (weatherText.includes('晴') && weatherText.includes('曇')) || weatherCode.startsWith('11');
-        const isSunnyClear = weatherText.includes('晴') && !weatherText.includes('曇') || weatherCode.startsWith('10');
-        const isThunder = weatherText.includes('雷') || weatherCode.startsWith('8');
-        
-        // 夜間かどうかの判断
+      // 現在時刻表示の更新
+      function updateTime() {
         const now = new Date();
-        const hour = now.getHours();
-        const isNight = hour >= 18 || hour < 6;
-        
-        // 背景画像をセット
-        if (isNight) {
-          body.className = 'weather-night';
-        } else if (isRainy) {
-          body.className = 'weather-rainy';
-          createRain();
-        } else if (isSnowy) {
-          body.className = 'weather-snowy';
-          createSnow();
-        } else if (isCloudy) {
-          body.className = 'weather-cloudy';
-        } else if (isSunnyAndCloudy) {
-          body.className = 'weather-sunny-cloud';
-        } else if (isThunder) {
-          body.className = 'weather-thunder';
-        } else if (isSunnyClear) {
-          body.className = 'weather-sunny-clear';
-        } else {
-          body.className = 'weather-sunny-clear'; // デフォルト
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const currentTime = `${hours}:${minutes}:${seconds}`;
+        document.getElementById('current-time').textContent = currentTime;
+      }
+      
+      // 初回の時刻表示
+      updateTime();
+      
+      // 1秒ごとに時刻を更新
+      setInterval(updateTime, 1000);
+      
+      // 天気コードから背景とアニメーションを設定
+      const weatherCode = "{{ weather_info.today.weather_code }}";
+      const weatherText = "{{ weather_info.today.weather }}";
+      const adviceElement = document.getElementById('weather-advice-text');
+      const body = document.body;
+      const animationContainer = document.getElementById('animation-container');
+      
+      // 天気の状態を判断
+      const isRainy = weatherText.includes('雨') || weatherCode.startsWith('3') || weatherCode.startsWith('4');
+      const isSnowy = weatherText.includes('雪') || weatherCode.startsWith('6') || weatherCode.startsWith('7');
+      const isCloudy = weatherText.includes('曇') || weatherCode.startsWith('2');
+      const isSunnyAndCloudy = (weatherText.includes('晴') && weatherText.includes('曇')) || weatherCode.startsWith('11');
+      const isSunnyClear = weatherText.includes('晴') && !weatherText.includes('曇') || weatherCode.startsWith('10');
+      const isThunder = weatherText.includes('雷') || weatherCode.startsWith('8');
+      
+      // 夜間かどうかの判断
+      const now = new Date();
+      const hour = now.getHours();
+      const isNight = hour >= 18 || hour < 6;
+      
+      // 背景画像をセット
+      if (isNight) {
+        body.className = 'weather-night';
+      } else if (isRainy) {
+        body.className = 'weather-rainy';
+        createRain();
+      } else if (isSnowy) {
+        body.className = 'weather-snowy';
+        createSnow();
+      } else if (isCloudy) {
+        body.className = 'weather-cloudy';
+      } else if (isSunnyAndCloudy) {
+        body.className = 'weather-sunny-cloud';
+      } else if (isThunder) {
+        body.className = 'weather-thunder';
+      } else if (isSunnyClear) {
+        body.className = 'weather-sunny-clear';
+      } else {
+        body.className = 'weather-sunny-clear'; // デフォルト
+      }
+      
+      // アドバイステキスト部分は削除
+      
+      // 雨のアニメーション
+      function createRain() {
+        for (let i = 0; i < 40; i++) {
+          const raindrop = document.createElement('div');
+          raindrop.className = 'raindrop';
+          raindrop.style.left = `${Math.random() * 100}%`;
+          raindrop.style.opacity = Math.random() * 0.6 + 0.4;
+          raindrop.style.animationDuration = `${Math.random() * 0.5 + 0.5}s`;
+          raindrop.style.height = `${Math.random() * 10 + 10}px`;
+          animationContainer.appendChild(raindrop);
         }
-        
-        // アドバイステキストを設定
-        if (isRainy) {
-          adviceElement.innerHTML = '今日は雨の予報です。傘を忘れずに持っていきましょう。足元が濡れているかもしれないので、滑らないよう注意してください。';
-        } else if (isSnowy) {
-          adviceElement.innerHTML = '今日は雪の予報です。暖かい服装と滑りにくい靴で出かけましょう。路面が凍結している場合があるので十分注意してください。';
-        } else if (isCloudy) {
-          adviceElement.innerHTML = '今日は曇りの予報です。急な天候の変化に備えて、折りたたみ傘があると安心です。';
-        } else if (isThunder) {
-          adviceElement.innerHTML = '今日は雷を伴う天気です。外出時は十分に注意し、できるだけ建物の中で過ごすようにしましょう。';
-        } else if (isSunnyClear || isSunnyAndCloudy) {
-          const maxTemp = parseFloat("{{ weather_info.today.temperature_max }}");
-          if (!isNaN(maxTemp) && maxTemp > 28) {
-            adviceElement.innerHTML = '今日は晴れで暑くなりそうです。水分補給を忘れずに、日焼け対策もしっかりしましょう。熱中症にご注意ください。';
-          } else {
-            adviceElement.innerHTML = '今日は良い天気です。気持ちの良い一日になりそうですね。';
-          }
-        } else {
-          adviceElement.innerHTML = '今日も体調に気をつけて過ごしましょう。';
+      }
+      
+      // 雪のアニメーション
+      function createSnow() {
+        for (let i = 0; i < 30; i++) {
+          const snowflake = document.createElement('div');
+          snowflake.className = 'snowflake';
+          snowflake.style.left = `${Math.random() * 100}%`;
+          snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+          snowflake.style.animationDuration = `${Math.random() * 3 + 2}s`;
+          snowflake.style.width = `${Math.random() * 4 + 3}px`;
+          snowflake.style.height = snowflake.style.width;
+          animationContainer.appendChild(snowflake);
         }
-        
-        // 雨のアニメーション
-        function createRain() {
-          for (let i = 0; i < 40; i++) {
-            const raindrop = document.createElement('div');
-            raindrop.className = 'raindrop';
-            raindrop.style.left = `${Math.random() * 100}%`;
-            raindrop.style.opacity = Math.random() * 0.6 + 0.4;
-            raindrop.style.animationDuration = `${Math.random() * 0.5 + 0.5}s`;
-            raindrop.style.height = `${Math.random() * 10 + 10}px`;
-            animationContainer.appendChild(raindrop);
-          }
-        }
-        
-        // 雪のアニメーション
-        function createSnow() {
-          for (let i = 0; i < 30; i++) {
-            const snowflake = document.createElement('div');
-            snowflake.className = 'snowflake';
-            snowflake.style.left = `${Math.random() * 100}%`;
-            snowflake.style.opacity = Math.random() * 0.6 + 0.4;
-            snowflake.style.animationDuration = `${Math.random() * 3 + 2}s`;
-            snowflake.style.width = `${Math.random() * 4 + 3}px`;
-            snowflake.style.height = snowflake.style.width;
-            animationContainer.appendChild(snowflake);
-          }
-        }
-      {% endif %}
+      }
     });
   </script>
 </body>

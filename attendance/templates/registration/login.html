@@ -1,7 +1,365 @@
-<!-- login.html -->
-<h2>ログイン</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">ログイン</button>
-</form>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // URLから天気情報を取得するためのパラメータを取得
+    // 実際の実装では、セッションストレージやCookieを使うほうが良いかもしれません
+    const urlParams = new URLSearchParams(window.location.search);
+    const weatherCode = urlParams.get('weather_code') || localStorage.getItem('weather_code');
+    const weatherText = urlParams.get('weather_text') || localStorage.getItem('weather_text');
+    
+    // 前のページから天気情報が渡されていない場合は、デフォルトとして晴れを設定
+    if (!weatherCode && !weatherText) {
+      document.body.className = 'weather-sunny-clear';
+      return;
+    }
+    
+    // 天気情報をローカルストレージに保存（次のページ遷移のため）
+    if (weatherCode) localStorage.setItem('weather_code', weatherCode);
+    if (weatherText) localStorage.setItem('weather_text', weatherText);
+    
+    // 天気の状態を判断
+    const isRainy = weatherText?.includes('雨') || weatherCode?.startsWith('3') || weatherCode?.startsWith('4');
+    const isSnowy = weatherText?.includes('雪') || weatherCode?.startsWith('6') || weatherCode?.startsWith('7');
+    const isCloudy = weatherText?.includes('曇') || weatherCode?.startsWith('2');
+    const isSunnyAndCloudy = (weatherText?.includes('晴') && weatherText?.includes('曇')) || weatherCode?.startsWith('11');
+    const isSunnyClear = weatherText?.includes('晴') && !weatherText?.includes('曇') || weatherCode?.startsWith('10');
+    const isThunder = weatherText?.includes('雷') || weatherCode?.startsWith('8');
+    
+    // 夜間かどうかの判断
+    const now = new Date();
+    const hour = now.getHours();
+    const isNight = hour >= 18 || hour < 6;
+    
+    // 背景画像をセット
+    if (isNight) {
+      document.body.className = 'weather-night';
+    } else if (isRainy) {
+      document.body.className = 'weather-rainy';
+    } else if (isSnowy) {
+      document.body.className = 'weather-snowy';
+    } else if (isCloudy) {
+      document.body.className = 'weather-cloudy';
+    } else if (isSunnyAndCloudy) {
+      document.body.className = 'weather-sunny-cloud';
+    } else if (isThunder) {
+      document.body.className = 'weather-thunder';
+    } else if (isSunnyClear) {
+      document.body.className = 'weather-sunny-clear';
+    } else {
+      document.body.className = 'weather-sunny-clear'; // デフォルト
+    }
+  });
+  
+
+    // カメラ映像を取得
+  const video = document.getElementById("camera");
+  const canvas = document.getElementById("canvas");
+  const context = canvas.getContext("2d");
+
+  // カメラの設定
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      console.log("カメラのアクセスに失敗しました:", err);
+    });
+
+  // 定期的にフレームを取得して送信
+  setInterval(() => {
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL("image/jpeg"); // Base64エンコード
+
+    // サーバーに送信
+    fetch("/face_login_api/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}", // CSRFトークンが必要な場合
+      },
+      body: JSON.stringify({ image_data: imageData }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log("顔認証成功:", data.message);
+      } else {
+        console.log("顔認証失敗:", data.message);
+      }
+    })
+    .catch(error => {
+      console.error("エラー:", error);
+    });
+  }, 1000); // 1秒ごとに送信
+</script><!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン - 勤怠管理システム</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Google Fonts: Noto Sans JP -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 1.5s ease;
+      color: #333;
+      /* 背景画像は JavaScript で天気に基づいて設定されます */
+    }
+    
+    /* 天気に応じた背景スタイル（リアルな画像） */
+    body.weather-sunny-clear {
+      background-image: url('https://images.unsplash.com/photo-1617142108319-66c7ab45c711?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c3VubnklMjBza3l8ZW58MHx8MHx8fDA%3D&w=1000&q=80');
+    }
+    
+    body.weather-sunny-cloud {
+      background-image: url('https://images.unsplash.com/photo-1501630834273-4b5604d2ee31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHN1bm55JTIwY2xvdWRzfGVufDB8fDB8fHww&w=1000&q=80');
+    }
+    
+    body.weather-cloudy {
+      background-image: url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdWR5JTIwc2t5fGVufDB8fDB8fHww&w=1000&q=80');
+    }
+    
+    body.weather-rainy {
+      background-image: url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHJhaW55JTIwZGF5fGVufDB8fDB8fHww&w=1000&q=80');
+    }
+    
+    body.weather-snowy {
+      background-image: url('https://images.unsplash.com/photo-1511131341642-24e698e39d72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c25vd3klMjBkYXl8ZW58MHx8MHx8fDA%3D&w=1000&q=80');
+    }
+    
+    body.weather-thunder {
+      background-image: url('https://images.unsplash.com/photo-1605727216801-e27ce1d0cc28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHRodW5kZXJzdG9ybXxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80');
+    }
+    
+    body.weather-night {
+      background-image: url('https://images.unsplash.com/photo-1505322715123-90e9aa1e2d86?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG5pZ2h0JTIwc2t5fGVufDB8fDB8fHww&w=1000&q=80');
+      color: #fff;
+    }
+
+    .main-container {
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      padding: 30px;
+    }
+    
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #2c3e50;
+    }
+    
+    /* ログインフォーム用のスタイル */
+    .login-form label {
+      font-weight: 500;
+      color: #2c3e50;
+      margin-bottom: 5px;
+      display: block;
+    }
+    
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    
+    .login-form input[type="text"]:focus,
+    .login-form input[type="password"]:focus {
+      border-color: #4299e1;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    }
+    
+    .login-form .help-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    .login-form .btn-login {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #4299e1;
+      border: none;
+      color: white;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    .login-form .btn-login:hover {
+      background-color: #3182ce;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-form .errorlist {
+      color: #e53e3e;
+      padding-left: 20px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+    
+    /* ハンバーガーメニュー */
+    .menu-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-button:hover {
+      background-color: rgba(255, 255, 255, 1);
+      transform: scale(1.05);
+    }
+    
+    .offcanvas-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .offcanvas-body .btn {
+      margin-bottom: 10px;
+      width: 100%;
+      text-align: left;
+      padding: 12px 15px;
+    }
+    
+    .offcanvas-body .btn i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* レスポンシブデザイン */
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 15px;
+      }
+      
+      .login-card {
+        padding: 20px;
+      }
+      
+      .login-form .btn-login {
+        padding: 12px 20px;
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 戻るボタン -->
+  <a href="javascript:history.back()" class="menu-button">
+    <i class="fas fa-arrow-left fa-lg"></i>
+  </a>
+
+  <div class="main-container">
+    <div class="login-card">
+      <h2 class="section-title">ログイン</h2>
+      
+      <form method="post" class="login-form">
+        {% csrf_token %}
+        
+        <!-- ユーザー名フィールド -->
+        <div class="form-group">
+          <label for="id_username">ユーザー名</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <ul class="errorlist">
+              {% for error in form.username.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        
+        <!-- パスワードフィールド -->
+        <div class="form-group">
+          <label for="id_password">パスワード</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <ul class="errorlist">
+              {% for error in form.password.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        
+        <!-- 非フィールドエラー -->
+        {% if form.non_field_errors %}
+          <ul class="errorlist">
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        
+        <button type="submit" class="btn-login">
+          <i class="fas fa-sign-in-alt me-2"></i> ログイン
+        </button>
+        
+        <!-- 次のページへのリダイレクト用の隠しフィールド。valueは前のページから渡されたnextパラメータを使用 -->
+        <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+      </form>
+    </div>
+  </div>
+  <video id="camera" autoplay playsinline width="320" height="240"></video>
+  <canvas id="canvas" style="display:none;"></canvas> <!-- canvasは画面に表示しない -->
+</body>
+</html>
