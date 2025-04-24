@@ -8,14 +8,16 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import os
 import json
+import time
 from attendance.model_train.util import *
+from attendance.model_train.data_create import *
 import warnings
 # 顔画像が保存されている場所
 # KNOWN_FACE_PATH = "attendance/face_images/user1.jpg"  # 必要に応じて動的にすることも可能
 # KNOWN_FACE_PATH = "C:/Users/shouh/hackathon/attendance/face_images/user1.jpg"
 username = {}
-username[0] = '松井'
-username[1] = '藤井'
+username[0] = 'okada'
+username[1] = 'bouyama'
 username[2] = '岡田'
 username[3] = '坊山'
 username[4] = '山本'
@@ -24,15 +26,10 @@ username[4] = '山本'
 model_name = 'allcnn'
 cos_sim = nn.CosineSimilarity()
 def create_model():
-    model = get_model(model_name, num_classes=5)
+    model = get_model(model_name, num_classes=2)
     return model
-def sim_val(model, camera_input, local_input):
-    model.eval()
-    _, feature_camera = model(camera_input, mode='t-SNE')
-    _, feature_local = model(local_input, mode='t-SNE')
-    return cos_sim(feature_local, feature_camera)
-    
-# folder_path = "../face_images/"
+
+# folder_path = "face_images/"
 # file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
 
 @csrf_exempt
@@ -48,7 +45,7 @@ def face_login_api(request):
             nparr = np.frombuffer(image_bytes, np.uint8)
             frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
                             
-            checkpoint = torch.load('attendance/weight/{}/net/weight_save_30.tar'.format(model_name), map_location=torch.device('cpu'))
+            checkpoint = torch.load('attendance/weight/{}/net/weight_save_9999.tar'.format(model_name), map_location=torch.device('cpu'))
             model = create_model()
             model.load_state_dict(checkpoint['state_dict'])
 
@@ -60,20 +57,16 @@ def face_login_api(request):
 
             # バッチ次元追加 → (1, 3, 224, 224)
             input1 = input1.unsqueeze(0)
-            # result = 0
-            # res_path = ''
-            # for path in file_paths:
-            #     input2 = cv2.imread(path)
-            #     res_cos = sim_val(model, input1, input2)
-            #     if res_cos > result:
-            #         result = res_cos
-            #         res_path = path
-            output, features = model(input1, mode='t-SNE')
+            t1 = time.time()
+            output, feature = model(input1, mode='t-SNE')
+            
             output = torch.softmax(output, dim=1)
+            print(output)
             result = -1
             if output.max().item()>0.6:
                 result = torch.argmax(output).item()
-
+            t2 = time.time()
+            print(t2-t1)
             if result != -1:
                 print(output)
                 print(f'{username[result]}が検出されました')
