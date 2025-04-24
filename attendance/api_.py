@@ -12,12 +12,7 @@ import time
 from attendance.model_train.util import *
 from attendance.model_train.data_create import *
 import warnings
-# 顔画像が保存されている場所
-# KNOWN_FACE_PATH = "attendance/face_images/user1.jpg"  # 必要に応じて動的にすることも可能
-# KNOWN_FACE_PATH = "C:/Users/shouh/hackathon/attendance/face_images/user1.jpg"
-username = {}
-# username[0] = 'okada'
-# username[1] = 'bouyama'
+
 from django.utils.timezone import now
 import datetime
 from django.contrib.auth import get_user_model
@@ -54,9 +49,6 @@ cos_sim = nn.CosineSimilarity()
 def create_model():
     model = get_model(model_name, num_classes=2)
     return model
-
-# folder_path = "face_images/"
-# file_paths = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
 
 @csrf_exempt
 def face_login_api(request):
@@ -95,7 +87,6 @@ def face_login_api(request):
             print(t2-t1)
             if result != -1:
                 print(output)
-                print(f'{username[result]}が検出されました')
                 # 顔一致 → ログイン処理（ここではuser1に固定）
                 user = User.objects.get(username=name_ls[result])
                 login(request, user)
