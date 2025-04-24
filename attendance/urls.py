@@ -15,4 +15,6 @@ urlpatterns = [
     path('record_attend/', views.record_attend, name='record_attend'),
     # 履歴を残し、自動でtop画面に遷移
     path('record_leave/', views.record_leave, name='record_leave'),
+    # ログアウト状態にしてtop画面に遷移
+    path('logout_to_top/', views.logout_and_redirect_to_top, name='logout_to_top'),
 ]

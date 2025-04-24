@@ -3,22 +3,18 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import AttendanceLog
 from django.contrib.auth import logout
-<<<<<<< HEAD
-
 from django.core.paginator import Paginator
-=======
->>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
 from .weather import get_osaka_weather
 from django.utils import timezone
 from django.contrib import messages
 from datetime import  date
+from collections import defaultdict
+from datetime import timedelta
 
 
 def top_view(request):
     # 大阪の天気情報を取得
     weather_info = get_osaka_weather()
-    
-<<<<<<< HEAD
     # 今日の日付を取得
     today = date.today()
     
@@ -35,35 +31,6 @@ def top_view(request):
     
     # 天気情報と出勤中のユーザー情報をテンプレートに渡す
     return render(request, 'attendance/top.html', {'weather_info': weather_info, 'working_users': working_users})
-
-'''
-=======
-    # 既存の処理と統合
-    return render(request, 'attendance/top.html', {
-        'weather_info': weather_info
-    })
-
->>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
-@login_required
-def history_view(request):
-    logs = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp')
-    return render(request, 'attendance/history.html', {'logs': logs})
-<<<<<<< HEAD
-'''
-@login_required
-def history_view(request):
-    if request.user.is_staff: # 管理者アカウントでは全ユーザーの履歴を表示
-        logs_list = AttendanceLog.objects.all().order_by('-timestamp')  # ユーザーの勤怠記録を取得
-    else: # 一般アカウントでは自分の履歴のみ
-        logs_list = AttendanceLog.objects.filter(user=request.user).order_by('-timestamp') 
-    
-    paginator = Paginator(logs_list, 10)  # 1ページあたり10件のログを表示
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)  # 指定ページのデータを取得
-    
-    return render(request, 'attendance/history.html', {'page_obj': page_obj})
-=======
->>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
 
 
 def dashboard_view(request):
@@ -121,14 +88,8 @@ def record_attend(request):
 @login_required
 def record_leave(request):
     logout(request)
-<<<<<<< HEAD
-    return render(request, 'attendance/record_leave.html')
-=======
     return render(request, 'attendance/record_leave.html')
 
-
-from collections import defaultdict
-from datetime import timedelta
 
 @login_required
 def history_view(request):
@@ -169,4 +130,8 @@ def history_view(request):
         'total_minutes': total_minutes,
         'remaining_minutes': remaining_minutes,
     })
->>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
+
+@login_required
+def logout_and_redirect_to_top(request):
+    logout(request)
+    return redirect('top')  # 打刻画面にリダイレクト

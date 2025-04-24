@@ -110,9 +110,10 @@
     </div>
 
     <p>
-        <a href="{% url 'top' %}">
-            <button type="button">打刻画面に戻る</button>
-        </a>
+        <form method="post" action="{% url 'logout_to_top' %}">
+            {% csrf_token %}
+            <button type="submit">打刻画面に戻る</button>
+        </form>
     </p>
 
 </body>
