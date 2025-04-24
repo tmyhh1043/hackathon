@@ -18,11 +18,36 @@ import warnings
 username = {}
 username[0] = 'okada'
 username[1] = 'bouyama'
-username[2] = '岡田'
-username[3] = '坊山'
-username[4] = '山本'
+from django.utils.timezone import now
+import datetime
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
+_cached_users = None
+_last_updated = None
+_cache_timeout = datetime.timedelta(minutes=10)
+
+def get_users_cached():
+    global _cached_users, _last_updated
+    if _cached_users is None or _last_updated is None or (now() - _last_updated > _cache_timeout):
+        _cached_users = list(User.objects.all().values('id', 'username', 'email'))
+        _last_updated = now()
+    return _cached_users
+
+# APIとして使う場合
+def get_users_api(request):
+    from django.http import JsonResponse
+    return JsonResponse(get_users_cached(), safe=False)
+
+users = User.objects.all()
+print(len(users))
+name_ls = []
+for u in users:
+    name_ls.append(u.first_name)
+    print(u.first_name)
+print(name_ls, len(name_ls))
+# exit('10000')
 model_name = 'allcnn'
 cos_sim = nn.CosineSimilarity()
 def create_model():
@@ -71,7 +96,7 @@ def face_login_api(request):
                 print(output)
                 print(f'{username[result]}が検出されました')
                 # 顔一致 → ログイン処理（ここではuser1に固定）
-                user = User.objects.get(username='imgproc')
+                user = User.objects.get(username=name_ls[result])
                 login(request, user)
                 return JsonResponse({'success': True, 'message': 'ログイン成功'})
             else:
