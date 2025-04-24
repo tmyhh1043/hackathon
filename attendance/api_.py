@@ -16,14 +16,15 @@ import warnings
 # KNOWN_FACE_PATH = "attendance/face_images/user1.jpg"  # 必要に応じて動的にすることも可能
 # KNOWN_FACE_PATH = "C:/Users/shouh/hackathon/attendance/face_images/user1.jpg"
 username = {}
-username[0] = 'okada'
-username[1] = 'bouyama'
+# username[0] = 'okada'
+# username[1] = 'bouyama'
 from django.utils.timezone import now
 import datetime
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
-
+# ラベル0は岡田，ユーザネームはimgproc
+# ラベル1は坊山，ユーザネームはABC
 _cached_users = None
 _last_updated = None
 _cache_timeout = datetime.timedelta(minutes=10)
@@ -44,8 +45,8 @@ users = User.objects.all()
 print(len(users))
 name_ls = []
 for u in users:
-    name_ls.append(u.first_name)
-    print(u.first_name)
+    name_ls.append(u.get_username())
+    print(u.get_username())
 print(name_ls, len(name_ls))
 # exit('10000')
 model_name = 'allcnn'
