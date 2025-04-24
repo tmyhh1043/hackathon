@@ -115,13 +115,12 @@
       <a href="?week={{ week_number }}&page={{ page_obj.next_page_number }}">次</a>
       <a href="?week={{ week_number }}&page={{ page_obj.paginator.num_pages }}">最後</a>
     {% endif %}
+    <p>
+      <a href="{% url 'logout_to_top' %}">
+          <button type="button">打刻画面に戻る</button>
+      </a>
+    </p>
   </div>
-
-  <p>
-    <a href="{% url 'logout_to_top' %}">
-        <button type="button">打刻画面に戻る</button>
-    </a>
-  </p>
   
   <!-- 円グラフ（週40時間に対する進捗） -->
   <h3>1. 週40時間に対する学習進捗</h3>
@@ -144,7 +143,7 @@
     const weeklyData = {{ weekly_data|safe }};
     const presenceData = {{ presence_distribution|safe }};
     const weeklyLabels = {{ weekly_labels|safe }};
-    
+
     // ✅ 円グラフ（週40時間の進捗）
     const donutCtx = document.getElementById('donutChart')?.getContext('2d');
   if (donutCtx) {
@@ -229,8 +228,4 @@
     }
   });
 });
-<<<<<<< HEAD
   </script>
-=======
-</script>
->>>>>>> main
