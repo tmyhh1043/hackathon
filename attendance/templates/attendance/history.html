@@ -137,29 +137,6 @@
           <button type="button">打刻画面に戻る</button>
       </a>
     </p>
-
-
-  
-  
-  
-
-
-  
- 
-
-            ranges.forEach(([start, end]) => {
-              const x1 = xScale.getPixelForValue(start);
-              const x2 = xScale.getPixelForValue(end);
-              const y = chartArea.top + chartArea.height / 4;
-              const height = chartArea.height / 2;
-              ctx.fillStyle = 'rgba(54, 162, 235, 0.8)';
-              ctx.fillRect(x1, y, x2 - x1, height);
-            });
-          }
-        }]
-      });
-    }
-  });
-});
-  </script>
-
+  </div>
+</body>
+</html>

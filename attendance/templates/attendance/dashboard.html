@@ -92,6 +92,7 @@
   <h2>勤怠履歴（{{ start_of_week }} ~ {{ end_of_week }}）</h2>
 
   <!-- 週の切り替え -->
+  <p>{{ user.username }}</p>
   <p>週別表示：
     <a href="?week={{ week_number|add:1 }}">前の週</a> |
     {% if week_number > 0 %}
