@@ -30,6 +30,9 @@ def get_osaka_weather():
     # APIエンドポイント
     forecast_url = f"https://www.jma.go.jp/bosai/forecast/data/forecast/{area_code}.json"
     overview_url = f"https://www.jma.go.jp/bosai/forecast/data/overview_forecast/{area_code}.json"
+    # 天気アイコンコードの取得
+    icon_code = data['weather'][0]['icon']
+    icon_url = f'http://openweathermap.org/img/wn/{icon_code}@2x.png'
     
     try:
         # 天気予報データの取得
@@ -92,6 +95,7 @@ def get_osaka_weather():
                             weather_info['tomorrow']['icon_url'] = f"https://www.jma.go.jp/bosai/forecast/img/{area['weatherCodes'][1]}.svg"
 
                 weather_info['today']['temperature'] = temp_rounded
+                weather_info['today']['icon_url'] = icon_url
         return weather_info
         
     except Exception as e:

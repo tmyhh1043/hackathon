@@ -1,54 +1,4 @@
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // URLから天気情報を取得するためのパラメータを取得
-    // 実際の実装では、セッションストレージやCookieを使うほうが良いかもしれません
-    const urlParams = new URLSearchParams(window.location.search);
-    const weatherCode = urlParams.get('weather_code') || localStorage.getItem('weather_code');
-    const weatherText = urlParams.get('weather_text') || localStorage.getItem('weather_text');
-    
-    // 前のページから天気情報が渡されていない場合は、デフォルトとして晴れを設定
-    if (!weatherCode && !weatherText) {
-      document.body.className = 'weather-sunny-clear';
-      return;
-    }
-    
-    // 天気情報をローカルストレージに保存（次のページ遷移のため）
-    if (weatherCode) localStorage.setItem('weather_code', weatherCode);
-    if (weatherText) localStorage.setItem('weather_text', weatherText);
-    
-    // 天気の状態を判断
-    const isRainy = weatherText?.includes('雨') || weatherCode?.startsWith('3') || weatherCode?.startsWith('4');
-    const isSnowy = weatherText?.includes('雪') || weatherCode?.startsWith('6') || weatherCode?.startsWith('7');
-    const isCloudy = weatherText?.includes('曇') || weatherCode?.startsWith('2');
-    const isSunnyAndCloudy = (weatherText?.includes('晴') && weatherText?.includes('曇')) || weatherCode?.startsWith('11');
-    const isSunnyClear = weatherText?.includes('晴') && !weatherText?.includes('曇') || weatherCode?.startsWith('10');
-    const isThunder = weatherText?.includes('雷') || weatherCode?.startsWith('8');
-    
-    // 夜間かどうかの判断
-    const now = new Date();
-    const hour = now.getHours();
-    const isNight = hour >= 18 || hour < 6;
-    
-    // 背景画像をセット
-    if (isNight) {
-      document.body.className = 'weather-night';
-    } else if (isRainy) {
-      document.body.className = 'weather-rainy';
-    } else if (isSnowy) {
-      document.body.className = 'weather-snowy';
-    } else if (isCloudy) {
-      document.body.className = 'weather-cloudy';
-    } else if (isSunnyAndCloudy) {
-      document.body.className = 'weather-sunny-cloud';
-    } else if (isThunder) {
-      document.body.className = 'weather-thunder';
-    } else if (isSunnyClear) {
-      document.body.className = 'weather-sunny-clear';
-    } else {
-      document.body.className = 'weather-sunny-clear'; // デフォルト
-    }
-  });
-</script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -114,7 +64,8 @@
 
     .main-container {
       width: 100%;
-      max-width: 500px;
+      max-width: 800px;
+
       padding: 20px;
       margin: 0 auto;
       position: relative;
@@ -136,6 +87,46 @@
       margin-bottom: 30px;
       text-align: center;
       color: #2c3e50;
+    }
+    
+    /* カメラ映像と認証ステータス用のスタイル */
+    .camera-container {
+      width: 100%;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    #camera {
+      width: 320px;
+      height: 240px;
+      border-radius: 8px;
+      border: 3px solid #4299e1;
+      object-fit: cover;
+      margin: 0 auto 10px auto;
+      display: block;
+    }
+    
+    .auth-status {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+    }
+    
+    .auth-status.success {
+      background-color: rgba(72, 187, 120, 0.2);
+      color: #2f855a;
+      border: 1px solid #48bb78;
+      display: block;
+    }
+    
+    .auth-status.failure {
+      background-color: rgba(245, 101, 101, 0.2);
+      color: #c53030;
+      border: 1px solid #f56565;
+      display: block;
     }
     
     /* ログインフォーム用のスタイル */
@@ -200,6 +191,15 @@
       margin-bottom: 20px;
       font-size: 0.9rem;
     }
+    /* 2カラムレイアウト */
+    .two-column {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .column {
+      flex: 1;
+    }
     
     /* ハンバーガーメニュー */
     .menu-button {
@@ -253,9 +253,18 @@
         padding: 20px;
       }
       
+      .two-column {
+        flex-direction: column;
+      }
+      
       .login-form .btn-login {
         padding: 12px 20px;
         font-size: 1.1rem;
+      }
+      
+      #camera {
+        width: 280px;
+        height: 210px;
       }
     }
   </style>
@@ -270,52 +279,191 @@
     <div class="login-card">
       <h2 class="section-title">ログイン</h2>
       
-      <form method="post" class="login-form">
-        {% csrf_token %}
-        
-        <!-- ユーザー名フィールド -->
-        <div class="form-group">
-          <label for="id_username">ユーザー名</label>
-          {{ form.username }}
-          {% if form.username.errors %}
-            <ul class="errorlist">
-              {% for error in form.username.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+      <div class="two-column">
+        <!-- カメラによる顔認証 -->
+        <div class="column">
+          <h4 class="text-center mb-3">顔認証でログイン</h4>
+          <div class="camera-container">
+            <video id="camera" autoplay playsinline></video>
+            <div id="auth-status" class="auth-status">認証状態がここに表示されます</div>
+          </div>
         </div>
         
-        <!-- パスワードフィールド -->
-        <div class="form-group">
-          <label for="id_password">パスワード</label>
-          {{ form.password }}
-          {% if form.password.errors %}
-            <ul class="errorlist">
-              {% for error in form.password.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+        <!-- 通常のログインフォーム -->
+        <div class="column">
+          <h4 class="text-center mb-3">従来のログイン</h4>
+          <form method="post" class="login-form">
+            {% csrf_token %}
+            
+            <!-- ユーザー名フィールド -->
+            <div class="form-group">
+              <label for="id_username">ユーザー名</label>
+              {{ form.username }}
+              {% if form.username.errors %}
+                <ul class="errorlist">
+                  {% for error in form.username.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+            
+            <!-- パスワードフィールド -->
+            <div class="form-group">
+              <label for="id_password">パスワード</label>
+              {{ form.password }}
+              {% if form.password.errors %}
+                <ul class="errorlist">
+                  {% for error in form.password.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+            
+            <!-- 非フィールドエラー -->
+            {% if form.non_field_errors %}
+              <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+            
+            <button type="submit" class="btn-login">
+              <i class="fas fa-sign-in-alt me-2"></i> ログイン
+            </button>
+            
+            <!-- 次のページへのリダイレクト用の隠しフィールド。valueは前のページから渡されたnextパラメータを使用 -->
+            <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+          </form>
         </div>
-        
-        <!-- 非フィールドエラー -->
-        {% if form.non_field_errors %}
-          <ul class="errorlist">
-            {% for error in form.non_field_errors %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        
-        <button type="submit" class="btn-login">
-          <i class="fas fa-sign-in-alt me-2"></i> ログイン
-        </button>
-        
-        <!-- 次のページへのリダイレクト用の隠しフィールド。valueは前のページから渡されたnextパラメータを使用 -->
-        <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
-      </form>
+      </div>
     </div>
   </div>
+  
+  <!-- 非表示のキャンバス（画像処理用） -->
+  <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // URLから天気情報を取得するためのパラメータを取得
+      // 実際の実装では、セッションストレージやCookieを使うほうが良いかもしれません
+      const urlParams = new URLSearchParams(window.location.search);
+      const weatherCode = urlParams.get('weather_code') || localStorage.getItem('weather_code');
+      const weatherText = urlParams.get('weather_text') || localStorage.getItem('weather_text');
+      
+      // 前のページから天気情報が渡されていない場合は、デフォルトとして晴れを設定
+      if (!weatherCode && !weatherText) {
+        document.body.className = 'weather-sunny-clear';
+        return;
+      }
+      
+      // 天気情報をローカルストレージに保存（次のページ遷移のため）
+      if (weatherCode) localStorage.setItem('weather_code', weatherCode);
+      if (weatherText) localStorage.setItem('weather_text', weatherText);
+      
+      // 天気の状態を判断
+      const isRainy = weatherText?.includes('雨') || weatherCode?.startsWith('3') || weatherCode?.startsWith('4');
+      const isSnowy = weatherText?.includes('雪') || weatherCode?.startsWith('6') || weatherCode?.startsWith('7');
+      const isCloudy = weatherText?.includes('曇') || weatherCode?.startsWith('2');
+      const isSunnyAndCloudy = (weatherText?.includes('晴') && weatherText?.includes('曇')) || weatherCode?.startsWith('11');
+      const isSunnyClear = weatherText?.includes('晴') && !weatherText?.includes('曇') || weatherCode?.startsWith('10');
+      const isThunder = weatherText?.includes('雷') || weatherCode?.startsWith('8');
+      
+      // 夜間かどうかの判断
+      const now = new Date();
+      const hour = now.getHours();
+      const isNight = hour >= 18 || hour < 6;
+      
+      // 背景画像をセット
+      if (isNight) {
+        document.body.className = 'weather-night';
+      } else if (isRainy) {
+        document.body.className = 'weather-rainy';
+      } else if (isSnowy) {
+        document.body.className = 'weather-snowy';
+      } else if (isCloudy) {
+        document.body.className = 'weather-cloudy';
+      } else if (isSunnyAndCloudy) {
+        document.body.className = 'weather-sunny-cloud';
+      } else if (isThunder) {
+        document.body.className = 'weather-thunder';
+      } else if (isSunnyClear) {
+        document.body.className = 'weather-sunny-clear';
+      } else {
+        document.body.className = 'weather-sunny-clear'; // デフォルト
+      }
+    });
+    
+    // カメラ映像を取得
+    const video = document.getElementById("camera");
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
+    const authStatus = document.getElementById("auth-status");
+
+    // カメラの設定
+    const constraints = {
+      video: {
+        width: { ideal: 320 },
+        height: { ideal: 240 },
+        facingMode: "user" // 前面カメラを優先
+      }
+    };
+
+    // カメラ映像を取得
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(err => {
+        console.log("カメラのアクセスに失敗しました:", err);
+        authStatus.textContent = "カメラにアクセスできません。カメラの許可を確認してください。";
+        authStatus.className = "auth-status failure";
+      });
+
+    // 定期的にフレームを取得して送信
+    let authCount = 0;
+    setInterval(() => {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL("image/jpeg"); // Base64エンコード
+
+      // サーバーに送信
+      fetch("/face_login_api/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}", // CSRFトークンが必要な場合
+        },
+        body: JSON.stringify({ image_data: imageData }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log("顔認証成功:", data.message);
+          authStatus.textContent = "認証成功: " + data.message;
+          authStatus.className = "auth-status success";
+          
+          // 認証成功の場合、自動的にログインを実行
+          authCount++;
+          if (authCount >= 1) { // 連続3回成功したら自動ログイン
+            window.location.href = "{{ request.GET.next|default:'/' }}";
+          }
+        } else {
+          console.log("顔認証失敗:", data.message);
+          authStatus.textContent = "認証中...";
+          authStatus.className = "auth-status failure";
+          authCount = 0; // カウントリセット
+        }
+      })
+      .catch(error => {
+        console.error("エラー:", error);
+        authStatus.textContent = "サーバーエラーが発生しました";
+        authStatus.className = "auth-status failure";
+        authCount = 0; // カウントリセット
+      });
+    }, 1000); // 1秒ごとに送信
+  </script>
 </body>
 </html>
