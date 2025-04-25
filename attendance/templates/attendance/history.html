@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -10,6 +9,23 @@
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
             text-align: center;
+        }
+
+        .graph-wrapper {
+          background-color: #ffffff;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 16px 24px;
+          margin: 24px auto;
+          width: fit-content;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+          text-align: center;
+        }
+
+        .graph-wrapper h4 {
+          margin-bottom: 12px;
+          font-weight: 600;
+          color: #333;
         }
         h2 {
             color: #333;
@@ -72,185 +88,60 @@
 </head>
 <body>
 
-    <h2>勤怠履歴</h2>
-    <table>
-        <tr>
-            <th>ユーザ</th>
-            <th>日付</th>
-            <th>時間</th>
-            <th>種別</th>
-        </tr>
-        {% for log in page_obj %}
-        <tr>
-            <td>{{ log.user }}</td>
-            <td>{{ log.timestamp|date:"Y-m-d(D)" }}</td>
-            <td>{{ log.timestamp|date:"H:i" }}</td>
-            <td class="{% if log.get_type_display == '出勤' %}status-attendance{% elif log.get_type_display == '退勤' %}status-leave{% endif %}">
-                {{ log.get_type_display }}
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4">勤怠記録がありません。</td></tr>
-        {% endfor %}
-    </table>
+  <h2>勤怠履歴（{{ start_of_week }} ~ {{ end_of_week }}）</h2>
 
-    <!-- ページネーション -->
-    <div class="pagination">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">最初</a>
-            <a href="?page={{ page_obj.previous_page_number }}">前</a>
-        {% endif %}
-
-        <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">次</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
-        {% endif %}
-    </div>
-
-    <p>
-        <form method="post" action="{% url 'logout_to_top' %}">
-            {% csrf_token %}
-            <button type="submit">打刻画面に戻る</button>
-        </form>
-    </p>
-
-</body>
-</html>
-=======
-<h2>勤怠履歴</h2>
-<table border="1">
-  <tr>
-    <th>日付</th>
-    <th>時間</th>
-    <th>種別</th>
-  </tr>
-  {% for log in logs %}
+  <!-- 週の切り替え -->
+  <p>週別表示：
+    <a href="?week={{ week_number|add:1 }}">前の週</a> |
+    {% if week_number > 0 %}
+      <a href="?week={{ week_number|add:-1 }}">次の週</a> |
+    {% endif %}
+    <a href="?week=0">今週</a>
+  </p>
+  
+  <!-- 勤怠履歴表 -->
+  <table border="1">
     <tr>
-      <td>{{ log.timestamp|date:"Y-m-d" }}</td>
-      <td>{{ log.timestamp|date:"H:i" }}</td>
-      <td>{{ log.get_type_display }}</td>
+      <th>ユーザ名</th>
+      <th>年月日</th>
+      <th>時間</th>
+      <th>種別</th>
     </tr>
-  {% empty %}
-    <tr><td colspan="3">勤怠記録がありません。</td></tr>
-  {% endfor %}
-</table>
-
-<p>
-  <a href="{% url 'top' %}">
-    <button type="button">打刻画面に戻る</button>
-  </a>
-</p>
-
-<hr>
-<h2>学習時間可視化グラフ</h2>
-
-<!-- 円グラフ -->
-<h3>1. 週40時間に対する学習進捗</h3>
-<div style="width: 250px; height: 250px; margin: 0 auto;">
-  <canvas id="donutChart"></canvas>
-</div>
-
-<!-- 横棒グラフ（曜日別） -->
-<h3>2. 各曜日の出勤〜退勤時間帯（0〜24時）</h3>
-{% for day, ranges in presence_distribution.items %}
-  <div style="margin-bottom: 20px;">
-    <h4>{{ day }}曜日</h4>
-    <canvas id="presenceChart{{ forloop.counter }}" width="800" height="50"></canvas>
+    {% for log in page_obj %}
+      <tr>
+        <td>{{ log.user.username }}</td>
+        <td>{{ log.timestamp|date:"Y-m-d(D)" }}</td>
+        <td>{{ log.timestamp|date:"H:i" }}</td>
+        <td>{{ log.get_type_display }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">勤怠記録がありません。</td></tr>
+    {% endfor %}
+  </table>
+  
+  <!-- ページネーション -->
+  <div>
+    {% if page_obj.has_previous %}
+      <a href="?week={{ week_number }}&page=1">最初</a>
+      <a href="?week={{ week_number }}&page={{ page_obj.previous_page_number }}">前</a>
+    {% endif %}
+  
+    <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  
+    {% if page_obj.has_next %}
+      <a href="?week={{ week_number }}&page={{ page_obj.next_page_number }}">次</a>
+      <a href="?week={{ week_number }}&page={{ page_obj.paginator.num_pages }}">最後</a>
+    {% endif %}
+    <p>
+      <a href="{% url 'logout_to_top' %}">
+          <button type="button">打刻画面に戻る</button>
+      </a>
+    </p>
   </div>
-{% endfor %}
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const weeklyData = {{ weekly_data|default:"[]"|safe }};
-  const presenceData = {{ presence_distribution|safe }};
-  const weeklyLabels = {{ weekly_labels|default:"[]"|safe }};
+  
+  
+  
 
-  // ✅ 円グラフの描画（週40時間中の進捗）
-  const donutCtx = document.getElementById('donutChart')?.getContext('2d');
-  if (donutCtx) {
-    const total = {{ total_minutes|default:"0" }};
-    const remaining = {{ remaining_minutes|default:"2400" }};
-    const donutChart = new Chart(donutCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['学習済み', '残り'],
-        datasets: [{
-          data: [total, remaining],
-          backgroundColor: ['#4ade80', '#e5e7eb']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: '週40時間（2400分）に対する学習進捗'
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.label}: ${ctx.raw}分（${(ctx.raw / 60).toFixed(1)}時間）`
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // ✅ 横棒グラフの描画（曜日別）
-  const dayNames = Object.keys(presenceData);
-  dayNames.forEach((day, index) => {
-    const canvas = document.getElementById('presenceChart' + (index + 1));
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      const ranges = presenceData[day];
-
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: [''],
-          datasets: [{ data: [0], backgroundColor: 'transparent' }]
-        },
-        options: {
-          responsive: false,
-          indexAxis: 'x',
-          scales: {
-            x: {
-              type: 'linear',
-              min: 0,
-              max: 24,
-              ticks: { stepSize: 2 },
-              title: { display: true, text: '時刻' }
-            },
-            y: { display: false }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false }
-          }
-        },
-        plugins: [{
-          id: 'customBars',
-          beforeDraw(chart) {
-            const { ctx, chartArea } = chart;
-            const xScale = chart.scales.x;
-            ctx.clearRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-
-            ranges.forEach(([start, end]) => {
-              const x1 = xScale.getPixelForValue(start);
-              const x2 = xScale.getPixelForValue(end);
-              const y = chartArea.top + chartArea.height / 4;
-              const height = chartArea.height / 2;
-              ctx.fillStyle = 'rgba(54, 162, 235, 0.8)';
-              ctx.fillRect(x1, y, x2 - x1, height);
-            });
-          }
-        }]
-      });
-    }
-  });
-});
-</script>
->>>>>>> 882e2c14e310576766fddbd2398ed6e8b2cd297d
+  
+ 
