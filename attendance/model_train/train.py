@@ -6,7 +6,12 @@ from util import *
 import os
 from data_create import *
 import warnings
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--model', default='allcnn')
+parser.add_argument('--num_classes', default=2, help='認識したいユーザ数')
+args = parser.parse_args()
 # 警告を非表示にする
 warnings.filterwarnings("ignore", category=UserWarning)
 def test(epoch,net, data_loader, mode='Test'):
@@ -28,19 +33,18 @@ def test(epoch,net, data_loader, mode='Test'):
 def save_checkpoint(state, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
 # モデル定義
-def create_model():
-    model = get_model(model_name, num_classes=5)
+def create_model(class_num):
+    model = get_model(model_name, num_classes=class_num)
     return model
 
 # 損失関数で使う関数の用意
 CEloss = nn.CrossEntropyLoss() 
 
-# model_name = 'preactresnet18'
-model_name = 'allcnn'
-num_classes = 5
+model_name = args.model
+num_classes = args.num_classes
 print(f"Number of Classes: {num_classes}")
 print('| Building net')
-model= create_model()
+model= create_model(num_classes)
 epochs = 30
 lr = 0.01
 step_size = 15

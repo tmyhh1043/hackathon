@@ -7,6 +7,7 @@ from torch.nn.parameter import Parameter
 from torch.autograd import Variable
 CE = nn.CrossEntropyLoss() 
 
+# 学習関数
 def warmup(epoch, model, dataloader, optimizer):
     model.train()
     for id, (input, label) in enumerate(dataloader):

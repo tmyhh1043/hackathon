@@ -1,0 +1,60 @@
+### Pythonファイルについて
+
+##### data_create.py
+data_loaderを作成する関数を内包
+
+##### data_cut.py
+datasetディレクトリに格納した写真から顔を特定し，顔のみを切り抜きdataset_cutディレクトリ保存
+顔じゃなく服が顔と認識され保存される場合もあるため，実行後は必ずdataset_cutをチェックし不適切なものを削除する必要がある
+
+##### train.py
+モデルの学習用ファイル
+パラメータはモデルの選択とクラス数
+
+##### util.py
+モデルの定義と学習用関数
+
+### ディレクトリ
+
+##### ディレクトリ構造
+~~~tree
+│  data_create.py
+│  data_cut
+│  Readme
+│  train.py
+│  tree.txt
+│  util.py
+│  __init__
+│  
+├─dataset
+│  ├─train
+│  │  ├─class1
+│  │  │      IMG_7887.JPG
+│  │  │      IMG_7888.JPG
+│  │  │            
+│  │  └─class2
+│  │          IMG_7824.JPG
+│  │          IMG_7825.JPG
+│  │          IMG_7878.JPG
+│  │          
+│  └─val
+│      ├─class1
+│      │      IMG_7879.JPG
+│      │      IMG_7880.JPG
+│      │      IMG_7881.JPG
+│      │      
+│      └─class2
+│              IMG_7832.JPG
+│              IMG_7833.JPG
+~~~
+
+##### dataset
+携帯で撮影した写真を格納
+tree.txtを参考に配置
+
+##### tree.txt
+ディレクトリ構造をtxtで保存してある
+datasetに画像を格納する際に参考に
+
+##### dataset_cut
+data_cut.pyで処理した画像が格納される
