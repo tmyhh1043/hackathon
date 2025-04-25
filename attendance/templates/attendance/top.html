@@ -31,7 +31,6 @@
       font-family: 'Noto Sans JP', sans-serif;
       margin: 0;
       padding: 0;
-      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -39,6 +38,8 @@
       background-position: center;
       background-repeat: no-repeat;
       color: #333;
+      height: 100vh;
+      width: 100vw;
     }
 
     /* 天気に応じた背景スタイル（リアルな画像） */
@@ -70,16 +71,20 @@
       background-image: url('https://images.unsplash.com/photo-1505322715123-90e9aa1e2d86?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG5pZ2h0JTIwc2t5fGVufDB8fDB8fHww&w=1000&q=80');
     }
 
+    /* 中央パネルのメインクラス */
     .container {
       max-width: 1600px;
-      margin: 0 auto;
+      max-height: 900px;
+      min-height: 500px;
+      margin: 0 2%;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      padding-top: 4rem;
-      height: calc(100vh - 4rem);
+      gap: 2%;
+      padding-top: 5%;
+      height: 100%;
     }
 
+    /* ハンバーガーメニューボタン */
     .menu-button {
       position: fixed;
       top: 1.5rem;
@@ -101,28 +106,33 @@
       justify-content: center;
     }
 
+    /* カーソルを近づけたら浮き上がる */
     .menu-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
       background: white;
     }
-
+    
     .panel {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      padding: 3rem;
+      padding: 3%;
       border-radius: 1.5rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      height: 90%;
+      display: flex;
+      flex-direction: column;
     }
 
     .header {
+      flex: 1;
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 3%;
     }
 
     .header h1 {
       font-size: 3.5rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.5%;
       background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -131,15 +141,15 @@
 
     .header p {
       font-size: 1.75rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.5%;
       color: #666;
     }
 
     .clock {
       background: transparent;
-      padding: 2rem;
+      padding: 1%;
       border-radius: 1rem;
-      margin: 2rem 0;
+      margin: 1% 0;
       font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
       font-size: 3.5rem;
       color: rgb(126, 147, 218);
@@ -148,24 +158,44 @@
     }
 
     .buttons {
+      flex: 1.8;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      margin-top: 3rem;
+      gap: 2%;
+      margin-top: auto;
+      flex-direction: row; /* 横並び（デフォルト） */
+      justify-content: center; /* 横方向中央揃え */
+    }
+
+    .buttons-left {
+      justify-content: center;    /* 横方向中央揃え */
+      text-align: center;
+    }
+
+    .buttons-right {
+      justify-content: center;    /* 横方向中央揃え */
+      text-align: center;
+    }
+    
+    .buttons-left form,
+    .buttons-right form {
+      height: 100%;   /* 親要素の高さに合わせる */
+      width: 100%;    /* 横幅も揃える場合 */
+      display: flex;  /* ボタンを中央にしたい場合 */
     }
 
     .button {
-      padding: 3.5rem 8rem;
+      align-items: center;
       border: none;
       border-radius: 1rem;
       color: white;
-      font-size: 3rem;
+      font-size: 2.0rem;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2rem;
       transition: all 0.3s ease;
+      justify-content: center;    /* 横方向中央揃え */
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
@@ -180,11 +210,15 @@
     .button-in {
       background: var(--gradient-success);
       box-shadow: 0 8px 16px rgba(11, 163, 96, 0.2);
+      width: 100%;
+      height: 70%;
     }
 
     .button-out {
       background: var(--gradient-danger);
       box-shadow: 0 8px 16px rgba(255, 65, 108, 0.4);
+      width: 100%;
+      height: 70%;
     }
 
     .button-out:hover {
@@ -195,11 +229,11 @@
       display: flex;
       flex-direction: column;
       gap: 2rem;
-      height: 100%;
+      height: 90%;
     }
 
     .status {
-      flex-grow: 1;
+      flex: 2;
       display: flex;
       flex-direction: column;
     }
@@ -225,6 +259,8 @@
     }
 
     .weather {
+      justify-content: center;
+      flex: 1;
       padding: 2rem !important;
     }
 
@@ -360,58 +396,56 @@
       text-align: center;
     }
 
-    @media (max-width: 768px) {
-      body {
-        padding: 1rem;
-      }
-
+    @media (max-width: 750px) {
       .container {
         grid-template-columns: 1fr;
-        height: auto;
-        gap: 1.5rem;
-        padding-top: 5rem;
+        max-width: 100vw;
+        padding: 0;
+        margin: 0;
       }
-      
+      .panel {
+        width: 100vw;
+        max-width: 100vw;
+        min-width: 0;
+        padding: 2vw 2vw 4vw 2vw;
+        box-sizing: border-box;
+      }
       .header h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
+        word-break: break-all;
       }
-
+      .header p,
       .clock {
-        font-size: 2.5rem;
-        padding: 1.5rem;
+        font-size: 1.2rem;
+        word-break: break-all;
       }
-
+      .buttons {
+        gap: 3vw;
+      }
       .button {
-        padding: 4rem;
-        font-size: 4rem;
+        font-size: 1.2rem;
+        padding: 1.2rem 0;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+        word-break: break-all;
       }
-
-      .status {
-        min-height: 300px;
+      .weather-content {
+        flex-direction: column;
+        gap: 1rem;
+        font-size: 1rem;
       }
-
-      .status h2 {
-        font-size: 2.5rem;
-      }
-
-      .status-message {
+      .weather-icon {
         font-size: 2rem;
       }
-
-      .weather-content {
-        padding: 1rem 1.5rem;
-      }
-
-      .weather-icon {
-        font-size: 3rem;
-      }
-
-      .weather-info {
+      .weather-temp {
         font-size: 1.5rem;
       }
-
-      .weather-temp {
-        font-size: 2rem;
+      .user-card {
+        font-size: 1rem;
+        padding: 4px 6px;
+        min-width: 0;
+        word-break: break-all;
       }
     }
   </style>
@@ -447,14 +481,18 @@
         <div class="clock" id="clock">{{ now_time }}</div>
       </div>
       <div class="buttons">
-        <form action="{% url 'record_after_login' 'in' %}" method="post">
-          {% csrf_token %}
-          <button class="button button-in" type="submit">↪<span>出勤</span></button>
-        </form>
-        <form action="{% url 'record_after_login' 'out' %}" method="post">
-          {% csrf_token %}
-          <button class="button button-out" type="submit">↩<span>退勤</span></button>
-        </form>
+        <div class = "buttons-left">
+          <form action="{% url 'record_after_login' 'in' %}" method="post">
+            {% csrf_token %}
+            <button class="button button-in" type="submit">↪<span>出勤</span></button>
+          </form>
+        </div>
+        <div class="buttons-right">
+          <form action="{% url 'record_after_login' 'out' %}" method="post">
+            {% csrf_token %}
+            <button class="button button-out" type="submit">↩<span>退勤</span></button>
+          </form>
+        </div>
       </div>
     </div>
     <div class="right-panels">
