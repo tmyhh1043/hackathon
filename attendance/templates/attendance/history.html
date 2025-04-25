@@ -10,6 +10,23 @@
             background-color: #f8f9fa;
             text-align: center;
         }
+
+        .graph-wrapper {
+          background-color: #ffffff;
+          border: 1px solid #ddd;
+          border-radius: 10px;
+          padding: 16px 24px;
+          margin: 24px auto;
+          width: fit-content;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+          text-align: center;
+        }
+
+        .graph-wrapper h4 {
+          margin-bottom: 12px;
+          font-weight: 600;
+          color: #333;
+        }
         h2 {
             color: #333;
         }
@@ -120,99 +137,15 @@
           <button type="button">打刻画面に戻る</button>
       </a>
     </p>
-  </div>
-  
-  <!-- 円グラフ（週40時間に対する進捗） -->
-  <h3>1. 週40時間に対する学習進捗</h3>
-  <div style="width: 250px; height: 250px; margin: 0 auto;">
-    <canvas id="donutChart"></canvas>
-  </div>
-  
-  <!-- 横棒グラフ（曜日別出勤時間） -->
-  <h3>曜日別勤務時間</h3>
-  {% for day, ranges in presence_distribution.items %}
-  <div style="margin-bottom: 20px;">
-    <h4>{{ day }}曜日</h4>
-    <canvas id="presenceChart{{ forloop.counter }}" width="800" height="50"></canvas>
-  </div>
-  {% endfor %}
-  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const weeklyData = {{ weekly_data|safe }};
-    const presenceData = {{ presence_distribution|safe }};
-    const weeklyLabels = {{ weekly_labels|safe }};
 
-    // ✅ 円グラフ（週40時間の進捗）
-    const donutCtx = document.getElementById('donutChart')?.getContext('2d');
-  if (donutCtx) {
-    const total = {{ total_minutes|default:"0" }};
-    const remaining = {{ remaining_minutes|default:"2400" }};
-    const donutChart = new Chart(donutCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['学習済み', '残り'],
-        datasets: [{
-          data: [total, remaining],
-          backgroundColor: ['#4ade80', '#e5e7eb']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: '週40時間（2400分）に対する学習進捗'
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.label}: ${ctx.raw}分（${(ctx.raw / 60).toFixed(1)}時間）`
-            }
-          }
-        }
-      }
-    });
-  }
-  
-    // ✅ 曜日別棒グラフ
-    const dayNames = Object.keys(presenceData);
-  dayNames.forEach((day, index) => {
-    const canvas = document.getElementById('presenceChart' + (index + 1));
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      const ranges = presenceData[day];
 
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: [''],
-          datasets: [{ data: [0], backgroundColor: 'transparent' }]
-        },
-        options: {
-          responsive: false,
-          indexAxis: 'x',
-          scales: {
-            x: {
-              type: 'linear',
-              min: 0,
-              max: 24,
-              ticks: { stepSize: 2 },
-              title: { display: true, text: '時刻' }
-            },
-            y: { display: false }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false }
-          }
-        },
-        plugins: [{
-          id: 'customBars',
-          beforeDraw(chart) {
-            const { ctx, chartArea } = chart;
-            const xScale = chart.scales.x;
-            ctx.clearRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+  
+  
+  
+
+
+  
+ 
 
             ranges.forEach(([start, end]) => {
               const x1 = xScale.getPixelForValue(start);
@@ -229,3 +162,4 @@
   });
 });
   </script>
+

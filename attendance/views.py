@@ -153,6 +153,7 @@ def history_view(request):
         'total_minutes': total_minutes,
         'remaining_minutes': remaining_minutes,
     })
+
     
     
 def logout_and_redirect_to_top(request):
