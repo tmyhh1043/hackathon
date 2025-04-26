@@ -17,19 +17,66 @@
   <style>
     body {
       font-family: 'Noto Sans JP', sans-serif;
-      background-color: #f8f9fa;
-      padding-top: 2rem;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #333;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    /* 天気に応じた背景スタイル（リアルな画像） */
+    body.weather-sunny-clear {
+      background-image: url('https://images.unsplash.com/photo-1617142108319-66c7ab45c711?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c3VubnklMjBza3l8ZW58MHx8MHx8fDA%3D&w=1000&q=80');
+    }
+    
+    body.weather-sunny-cloud {
+      background-image: url('https://images.unsplash.com/photo-1501630834273-4b5604d2ee31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHN1bm55JTIwY2xvdWRzfGVufDB8fDB8fHww&w=1000&q=80');
+    }
+    
+    body.weather-cloudy {
+      background-image: url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Y2xvdWR5JTIwc2t5fGVufDB8fDB8fHww&w=1000&q=80');
+    }
+    
+    body.weather-rainy {
+      background-image: url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHJhaW55JTIwZGF5fGVufDB8fDB8fHww&w=1000&q=80');
+    }
+    
+    body.weather-snowy {
+      background-image: url('https://images.unsplash.com/photo-1511131341642-24e698e39d72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c25vd3klMjBkYXl8ZW58MHx8MHx8fDA%3D&w=1000&q=80');
+    }
+    
+    body.weather-thunder {
+      background-image: url('https://images.unsplash.com/photo-1605727216801-e27ce1d0cc28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHRodW5kZXJzdG9ybXxlbnwwfHwwfHx8MA%3D%3D&w=1000&q=80');
+    }
+    
+    body.weather-night {
+      background-image: url('https://images.unsplash.com/photo-1505322715123-90e9aa1e2d86?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fG5pZ2h0JTIwc2t5fGVufDB8fDB8fHww&w=1000&q=80');
     }
     
     .container {
       max-width: 800px;
+      width: 100%;
+      min-height: calc(100vh - 2rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem;
     }
     
     .card {
-      border-radius: 15px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      margin-bottom: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin-bottom: 1rem;
       overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: none;
     }
     
     .card-header {
@@ -38,30 +85,80 @@
       font-weight: 700;
       padding: 1.2rem;
       text-align: center;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+    
+    .trophy-icon {
+      margin-right: 0.5rem;
+      color: #ffc107;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      display: inline-block;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+      100% {
+        transform: translateY(0px);
+      }
+    }
+    
+    .date-container {
+      background-color: rgba(248, 249, 250, 0.8);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .date-range {
+      flex: 1;
+      text-align: center;
+      font-size: 1.1rem;
+      color: #495057;
+      font-weight: 500;
+    }
+    
+    .prev-week, .next-week {
+      flex: 0 0 auto;
+      margin: 0 1rem;
+    }
+    
+    .ranking-list {
+      padding: 0.5rem;
     }
     
     .ranking-item {
       display: flex;
       align-items: center;
       padding: 1rem 1.5rem;
-      border-bottom: 1px solid #eee;
-      transition: background-color 0.2s;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      background-color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 0.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
     
     .ranking-item:hover {
-      background-color: #f5f9ff;
-    }
-    
-    .ranking-item:last-child {
-      border-bottom: none;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
     
     .rank {
-      flex: 0 0 50px;
-      font-size: 1.5rem;
-      font-weight: 700;
+      flex: 0 0 40px;
+      font-size: 2rem;
+      font-weight: 800;
       text-align: center;
+      color: #bbbbbb;
     }
     
     .rank-1 {
@@ -76,118 +173,175 @@
       color: #cd7f32; /* bronze */
     }
     
+    .medal-icon {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+    }
+    
+    .medal-gold {
+      color: gold;
+    }
+    
+    .medal-silver {
+      color: silver;
+    }
+    
+    .medal-bronze {
+      color: #cd7f32;
+    }
+    
     .user-info {
       flex: 1;
+      display: flex;
+      align-items: center;
     }
     
     .username {
       font-weight: 600;
-      font-size: 1.1rem;
-      margin-bottom: 0.2rem;
+      font-size: 1.2rem;
+      color: #333;
     }
     
     .hours {
-      flex: 0 0 120px;
+      flex: 0 0 140px;
       text-align: right;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: #0d6efd;
     }
     
-    .date-range {
-      background-color: #e9ecef;
-      padding: 0.5rem 1rem;
-      text-align: center;
-      font-size: 0.9rem;
+    .hours small {
+      font-size: 0.8rem;
       color: #6c757d;
     }
     
-    .week-selector {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .week-selector a {
-      padding: 0.5rem 1rem;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    
-    .week-selector a:hover {
-      transform: translateY(-2px);
-    }
-    
     .btn-back {
-      display: block;
-      width: 100%;
-      max-width: 200px;
-      margin: 2rem auto;
-      border-radius: 30px;
-      padding: 0.8rem 1.5rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: 50px;
+      background: linear-gradient(to right, #28a745, #20c997);
+      border: none;
+      color: white;
       font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      display: block;
+      width: fit-content;
+      margin: 1rem auto;
+      backdrop-filter: blur(5px);
     }
     
-    .trophy-icon {
-      margin-right: 0.5rem;
-      color: #ffc107;
+    .btn-back:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
     }
     
-    .badge-hours {
-      background-color: #e7f2ff;
-      color: #0d6efd;
-      font-weight: 500;
-      padding: 0.3rem 0.6rem;
-      border-radius: 20px;
-      margin-left: 0.5rem;
+    /* アニメーション用スタイル */
+    .raindrop {
+      position: absolute;
+      top: -10px;
+      width: 1px;
+      height: 15px;
+      background: rgba(255, 255, 255, 0.7);
+      animation: rain linear infinite;
+    }
+
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      width: 5px;
+      height: 5px;
+      background: white;
+      border-radius: 50%;
+      animation: snow linear infinite;
     }
     
-    /* レスポンシブ対応 */
+    @keyframes rain {
+      0% {
+        top: -10px;
+      }
+      100% {
+        top: 100vh;
+      }
+    }
+    
+    @keyframes snow {
+      0% {
+        top: -10px;
+        transform: translateX(0) rotate(0deg);
+      }
+      100% {
+        top: 100vh;
+        transform: translateX(20px) rotate(360deg);
+      }
+    }
+    
+    .weather-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
     @media (max-width: 576px) {
-      .rank {
-        flex: 0 0 40px;
-        font-size: 1.2rem;
+      .ranking-item {
+        padding: 0.8rem 1rem;
       }
       
-      .hours {
-        flex: 0 0 80px;
-        font-size: 0.9rem;
+      .rank {
+        flex: 0 0 30px;
+        font-size: 1.5rem;
+      }
+      
+      .medal-icon {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
       }
       
       .username {
         font-size: 1rem;
       }
+      
+      .hours {
+        flex: 0 0 100px;
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
-<body>
+<body class="{{ weather_class }}">
+  <div class="weather-animation" id="animation-container"></div>
+  
   <div class="container">
     <div class="card">
       <div class="card-header">
-        <i class="fas fa-trophy trophy-icon"></i>労働時間ランキング
+        <i class="fas fa-trophy trophy-icon"></i> 労働時間ランキング
       </div>
       
-      <div class="date-range">
-        {{ start_of_week }} 〜 {{ end_of_week }} の集計
-      </div>
-      
-      <div class="week-selector">
-        <a href="?week={{ week_number|add:1 }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-chevron-left"></i> 前の週
-        </a>
-        
-        {% if week_number > 0 %}
-          <a href="?week={{ week_number|add:-1 }}" class="btn btn-outline-primary btn-sm">
-            次の週 <i class="fas fa-chevron-right"></i>
+      <div class="date-container">
+        <div class="prev-week">
+          <a href="?week={{ week_number|add:1 }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-chevron-left"></i> 前の週
           </a>
-        {% endif %}
+        </div>
         
-        <a href="?week=0" class="btn btn-primary btn-sm">
-          <i class="fas fa-calendar-week"></i> 今週
-        </a>
+        <div class="date-range">
+          <i class="far fa-calendar-alt me-2"></i>{{ start_of_week }} 〜 {{ end_of_week }} の集計
+        </div>
+        
+        <div class="next-week">
+          {% if week_number > 0 %}
+            <a href="?week={{ week_number|add:-1 }}" class="btn btn-outline-primary btn-sm">
+              次の週 <i class="fas fa-chevron-right"></i>
+            </a>
+          {% else %}
+            <a href="?week=0" class="btn btn-primary btn-sm">
+              今週 <i class="fas fa-calendar-check"></i>
+            </a>
+          {% endif %}
+        </div>
       </div>
       
       <div class="ranking-list">
@@ -197,9 +351,18 @@
               {{ forloop.counter }}
             </div>
             <div class="user-info">
+              {% if forloop.counter == 1 %}
+                <i class="fas fa-medal medal-icon medal-gold"></i>
+              {% elif forloop.counter == 2 %}
+                <i class="fas fa-medal medal-icon medal-silver"></i>
+              {% elif forloop.counter == 3 %}
+                <i class="fas fa-medal medal-icon medal-bronze"></i>
+              {% endif %}
               <div class="username">
-                {{ user.username }}
-                {% if forloop.counter == 1 %}<i class="fas fa-crown" style="color: gold;"></i>{% endif %}
+                {{ user.username }} 
+                {% if forloop.counter == 1 %}<span style="font-size: 1.2em;">🥇</span>{% endif %}
+                {% if forloop.counter == 2 %}<span style="font-size: 1.2em;">🥈</span>{% endif %}
+                {% if forloop.counter == 3 %}<span style="font-size: 1.2em;">🥉</span>{% endif %}
               </div>
             </div>
             <div class="hours">
@@ -208,16 +371,85 @@
             </div>
           </div>
         {% empty %}
-          <div class="ranking-item text-center py-4">
-            <p class="text-muted mb-0">この期間のデータがありません</p>
+          <div class="ranking-item text-center">
+            <p class="text-muted mb-0 w-100">この期間のデータがありません</p>
           </div>
         {% endfor %}
       </div>
     </div>
     
-    <a href="{% url 'top' %}" class="btn btn-success btn-back">
-      <i class="fas fa-arrow-left"></i> 打刻画面に戻る
+    <a href="{% url 'top' %}" class="btn btn-back">
+      <i class="fas fa-arrow-left me-2"></i> 打刻画面に戻る
     </a>
   </div>
+  
+  <script>
+    // 天気コードから背景とアニメーションを設定
+    const weatherCode = "{{ weather_info.today.weather_code }}";
+    const weatherText = "{{ weather_info.today.weather }}";
+    const animationContainer = document.getElementById('animation-container');
+    
+    // 天気の状態を判断
+    const isRainy = weatherText.includes('雨') || weatherCode.startsWith('3') || weatherCode.startsWith('4');
+    const isSnowy = weatherText.includes('雪') || weatherCode.startsWith('6') || weatherCode.startsWith('7');
+    const isCloudy = weatherText.includes('曇') || weatherCode.startsWith('2');
+    const isSunnyAndCloudy = (weatherText.includes('晴') && weatherText.includes('曇')) || weatherCode.startsWith('11');
+    const isSunnyClear = weatherText.includes('晴') && !weatherText.includes('曇') || weatherCode.startsWith('10');
+    const isThunder = weatherText.includes('雷') || weatherCode.startsWith('8');
+    
+    // 夜間かどうかの判断
+    const now = new Date();
+    const hour = now.getHours();
+    const isNight = hour >= 18 || hour < 6;
+    
+    // 背景画像をセット
+    const body = document.body;
+    if (isNight) {
+      body.className = 'weather-night';
+    } else if (isRainy) {
+      body.className = 'weather-rainy';
+      createRain();
+    } else if (isSnowy) {
+      body.className = 'weather-snowy';
+      createSnow();
+    } else if (isCloudy) {
+      body.className = 'weather-cloudy';
+    } else if (isSunnyAndCloudy) {
+      body.className = 'weather-sunny-cloud';
+    } else if (isThunder) {
+      body.className = 'weather-thunder';
+    } else if (isSunnyClear) {
+      body.className = 'weather-sunny-clear';
+    } else {
+      body.className = 'weather-sunny-clear'; // デフォルト
+    }
+    
+    // 雨のアニメーション
+    function createRain() {
+      for (let i = 0; i < 40; i++) {
+        const raindrop = document.createElement('div');
+        raindrop.className = 'raindrop';
+        raindrop.style.left = `${Math.random() * 100}%`;
+        raindrop.style.opacity = Math.random() * 0.6 + 0.4;
+        raindrop.style.animationDuration = `${Math.random() * 0.5 + 0.5}s`;
+        raindrop.style.height = `${Math.random() * 10 + 10}px`;
+        animationContainer.appendChild(raindrop);
+      }
+    }
+    
+    // 雪のアニメーション
+    function createSnow() {
+      for (let i = 0; i < 30; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.style.left = `${Math.random() * 100}%`;
+        snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+        snowflake.style.animationDuration = `${Math.random() * 3 + 2}s`;
+        snowflake.style.width = `${Math.random() * 4 + 3}px`;
+        snowflake.style.height = snowflake.style.width;
+        animationContainer.appendChild(snowflake);
+      }
+    }
+  </script>
 </body>
 </html>

@@ -206,7 +206,7 @@ def logout_and_redirect_to_top(request):
     return redirect('top')  # 打刻画面にリダイレクト
 
 
-# ここからが追加する新しいビュー関数
+# 新しく追加したランキング機能
 def ranking_view(request):
     # 週番号のパラメータを取得（デフォルト: 0=今週）
     week_number = int(request.GET.get('week', 0))
@@ -269,11 +269,42 @@ def ranking_view(request):
     # 労働時間の降順でソート
     ranking_data.sort(key=lambda x: x['total_minutes'], reverse=True)
     
+    # 大阪の天気情報を取得
+    weather_info = get_osaka_weather()
+    
+    # 天気に基づいてclass名を設定
+    weather_text = weather_info['today']['weather']
+    weather_code = weather_info['today']['weather_code']
+    
+    # 夜間判定
+    now = datetime.now()
+    is_night = now.hour >= 18 or now.hour < 6
+    
+    # 天気クラスを設定
+    weather_class = 'weather-sunny-clear'  # デフォルト
+    
+    if is_night:
+        weather_class = 'weather-night'
+    elif '雨' in weather_text or weather_code.startswith('3') or weather_code.startswith('4'):
+        weather_class = 'weather-rainy'
+    elif '雪' in weather_text or weather_code.startswith('6') or weather_code.startswith('7'):
+        weather_class = 'weather-snowy'
+    elif '曇' in weather_text or weather_code.startswith('2'):
+        weather_class = 'weather-cloudy'
+    elif ('晴' in weather_text and '曇' in weather_text) or weather_code.startswith('11'):
+        weather_class = 'weather-sunny-cloud'
+    elif '雷' in weather_text or weather_code.startswith('8'):
+        weather_class = 'weather-thunder'
+    elif '晴' in weather_text and '曇' not in weather_text or weather_code.startswith('10'):
+        weather_class = 'weather-sunny-clear'
+    
     context = {
         'ranking_users': ranking_data,
         'start_of_week': start_of_week.strftime('%Y/%m/%d'),
         'end_of_week': end_of_week.strftime('%Y/%m/%d'),
         'week_number': week_number,
+        'weather_info': weather_info,
+        'weather_class': weather_class,
     }
     
     return render(request, 'attendance/ranking.html', context)
