@@ -527,7 +527,12 @@
       <!-- 天気に基づくアドバイス -->
       <div class="weather-advice">
         <h5><i class="fas fa-info-circle"></i> 今日のアドバイス</h5>
-        <p class="weather-text" id="weather-advice-text">天気に関する情報を読み込み中...</p>
+        {% if message %}
+          <p class="weather-text">{{ message }}</p>
+        {% else %}
+          <p class="weather-text" id="weather-advice-text">天気に関する情報を読み込み中...</p>
+        {% endif %}
+
       </div>
       
       <div class="weather-animation" id="animation-container"></div>
