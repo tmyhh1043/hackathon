@@ -5,11 +5,18 @@ import os
 import joblib
 import requests
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
+
 # モデル保存場所
 MODEL_DIR = 'user_models'
 
 def generate_text_with_api(prompt):
-    api_key = "AIzaSyBreCs1M-9v4aRuttno0C7BdcSS_f8tfxY"
+    api_key = os.getenv("API_KEY")
     url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={api_key}"
     headers = {
         "Content-Type": "application/json",
