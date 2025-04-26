@@ -112,7 +112,9 @@
         <td>{{ log.user.username }}</td>
         <td>{{ log.timestamp|date:"Y-m-d(D)" }}</td>
         <td>{{ log.timestamp|date:"H:i" }}</td>
-        <td>{{ log.get_type_display }}</td>
+        <td class="{% if log.type == 'in' %}status-attendance{% elif log.type == 'out' %}status-leave{% endif %}">
+          {{ log.get_type_display }}
+      </td>
       </tr>
     {% empty %}
       <tr><td colspan="4">勤怠記録がありません。</td></tr>
