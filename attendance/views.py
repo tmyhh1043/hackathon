@@ -11,6 +11,9 @@ from django.contrib import messages
 from datetime import  date
 from collections import defaultdict
 from datetime import timedelta
+from .utils.anomaly_detector import predict_and_generate_message 
+import pandas as pd
+
 
 
 def top_view(request):
@@ -47,11 +50,102 @@ def record_and_redirect(request, direction):
         if already_clocked_in:
             return redirect('record_attend')
         
+        now = timezone.now()
         AttendanceLog.objects.create(
             user=request.user,
             type='in',
-            timestamp=timezone.now()
+            timestamp=now
         )
+        
+        # --- 出勤時間（start_hour） ---
+        start_hour = now.hour + now.minute / 60
+
+        # --- 昨日の在籍時間（working_minutes） ---
+        yesterday = today - timedelta(days=1)
+
+        yesterday_in = AttendanceLog.objects.filter(
+            user=request.user,
+            type='in',
+            timestamp__date=yesterday
+        ).order_by('timestamp').first()
+
+        yesterday_out = AttendanceLog.objects.filter(
+            user=request.user,
+            type='out',
+            timestamp__date=yesterday
+        ).order_by('timestamp').first()
+
+        if yesterday_in and yesterday_out:
+            working_minutes = int((yesterday_out.timestamp - yesterday_in.timestamp).total_seconds() // 60)
+        else:
+            working_minutes = 480  # デフォルト8時間勤務
+
+        # --- 直近1週間の個人勤務データ ---
+        one_week_ago = today - timedelta(days=7)
+        user_past_out_logs = AttendanceLog.objects.filter(
+            user=request.user,
+            type='out',
+            timestamp__date__range=[one_week_ago, yesterday]
+        )
+
+        user_durations = []
+        for out_log in user_past_out_logs:
+            in_log = AttendanceLog.objects.filter(
+                user=request.user,
+                type='in',
+                timestamp__lt=out_log.timestamp
+            ).order_by('-timestamp').first()
+            if in_log:
+                duration = (out_log.timestamp - in_log.timestamp).total_seconds() / 60
+                user_durations.append(duration)
+
+        if user_durations:
+            user_mean_working_minutes = sum(user_durations) / len(user_durations)
+            user_std_working_minutes = pd.Series(user_durations).std()
+        else:
+            user_mean_working_minutes = 480
+            user_std_working_minutes = 30
+
+        # --- 全体勤務データ ---
+        global_out_logs = AttendanceLog.objects.filter(
+            type='out',
+            timestamp__date__lt=today
+        )
+
+        global_durations = []
+        for out_log in global_out_logs:
+            in_log = AttendanceLog.objects.filter(
+                user=out_log.user,
+                type='in',
+                timestamp__lt=out_log.timestamp
+            ).order_by('-timestamp').first()
+            if in_log:
+                duration = (out_log.timestamp - in_log.timestamp).total_seconds() / 60
+                global_durations.append(duration)
+
+        if global_durations:
+            global_mean_working_minutes = sum(global_durations) / len(global_durations)
+            global_std_working_minutes = pd.Series(global_durations).std()
+        else:
+            global_mean_working_minutes = 470
+            global_std_working_minutes = 40
+
+        # --- attendance_rowを7個の特徴量で作成 ---
+        attendance_row = {
+            'start_hour': start_hour,
+            'user_mean_working_minutes': user_mean_working_minutes,
+            'user_std_working_minutes': user_std_working_minutes,
+            'before_noon_flag': int(start_hour < 12.0),
+            'yesterday_overtime_flag': int(working_minutes >= 540),
+            'global_mean_working_minutes': global_mean_working_minutes,
+            'global_std_working_minutes': global_std_working_minutes
+        }
+
+        # --- モチベ管理メッセージ推論 ---
+        message = predict_and_generate_message(request.user.id, attendance_row)
+
+        # --- メッセージをセッション保存 ---
+        request.session['attendance_message'] = message
     
     elif direction == "out":
         already_clocked_out = AttendanceLog.objects.filter(
@@ -83,8 +177,9 @@ def record_and_redirect(request, direction):
 
 @login_required
 def record_done(request):
+    message = request.session.pop('attendance_message', None)
     logout(request)
-    return render(request, 'attendance/record_done.html')
+    return render(request, 'attendance/record_done.html', {'message': message})
 
 @login_required
 def record_attend(request):
