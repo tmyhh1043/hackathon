@@ -7,6 +7,8 @@ urlpatterns = [
     path('history/', views.history_view, name='history'),
     # ダッシュボード用URL
     path('dashboard/', views.dashboard_view, name="dashboard"),
+    # ランキング用URL (ここが追加部分)
+    path('ranking/', views.ranking_view, name='ranking'),
     # ログイン画面
     path('record_after_login/<str:direction>', views.record_and_redirect, name='record_after_login'),
     # 履歴を残し、自動でtop画面に遷移

@@ -1,4 +1,3 @@
-
 # attendance/views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -8,9 +7,9 @@ from django.core.paginator import Paginator
 from .weather import get_osaka_weather
 from django.utils import timezone
 from django.contrib import messages
-from datetime import  date
+from datetime import date, datetime, timedelta
 from collections import defaultdict
-from datetime import timedelta
+from django.contrib.auth.models import User
 
 
 def top_view(request):
@@ -87,12 +86,6 @@ def record_leave(request):
     logout(request)
     return render(request, 'attendance/record_leave.html')
 
-
-from django.core.paginator import Paginator
-from django.shortcuts import render
-from .models import AttendanceLog
-from datetime import datetime, timedelta
-from collections import defaultdict
 
 @login_required
 def history_view(request):
@@ -206,8 +199,112 @@ def dashboard_view(request):
         'total_minutes': total_minutes,
         'remaining_minutes': remaining_minutes,
     })
-    
-    
+
+
 def logout_and_redirect_to_top(request):
     logout(request)
     return redirect('top')  # 打刻画面にリダイレクト
+
+
+# 新しく追加したランキング機能
+def ranking_view(request):
+    # 週番号のパラメータを取得（デフォルト: 0=今週）
+    week_number = int(request.GET.get('week', 0))
+    
+    # 今日の日付
+    today = datetime.today().date()
+    
+    # 指定された週の開始日と終了日を計算
+    start_of_week = today - timedelta(days=today.weekday()) - timedelta(weeks=week_number)
+    end_of_week = start_of_week + timedelta(days=6)
+    
+    # 開始日時と終了日時（時間も含める）- timezone.make_aware()を使わない
+    start_datetime = datetime.combine(start_of_week, datetime.min.time())
+    end_datetime = datetime.combine(end_of_week, datetime.max.time())
+    
+    # ユーザーごとの労働時間を計算
+    users_work_time = defaultdict(int)
+    
+    # 各ユーザーの出勤・退勤ペアを取得
+    attendance_logs = AttendanceLog.objects.filter(
+        timestamp__range=(start_datetime, end_datetime)
+    ).order_by('user', 'timestamp')
+    
+    # ユーザーIDと日付ごとにログをグループ化
+    user_date_logs = defaultdict(list)
+    for log in attendance_logs:
+        user_id = log.user.id
+        log_date = log.timestamp.date()
+        user_date_logs[(user_id, log_date)].append(log)
+    
+    # 各ユーザーの日ごとの勤務時間を計算
+    for (user_id, log_date), logs in user_date_logs.items():
+        logs_sorted = sorted(logs, key=lambda x: x.timestamp)
+        
+        # 出勤と退勤のペアを見つける
+        i = 0
+        while i < len(logs_sorted) - 1:
+            if logs_sorted[i].type == 'in' and logs_sorted[i+1].type == 'out':
+                # 勤務時間を分単位で計算
+                time_diff = logs_sorted[i+1].timestamp - logs_sorted[i].timestamp
+                minutes = time_diff.total_seconds() / 60
+                users_work_time[user_id] += minutes
+                i += 2
+            else:
+                i += 1
+    
+    # ユーザー情報と合計時間のリストを作成
+    ranking_data = []
+    for user_id, total_minutes in users_work_time.items():
+        try:
+            user = User.objects.get(id=user_id)
+            ranking_data.append({
+                'username': user.username,
+                'total_minutes': total_minutes,
+                'total_hours': total_minutes / 60
+            })
+        except User.DoesNotExist:
+            continue
+    
+    # 労働時間の降順でソート
+    ranking_data.sort(key=lambda x: x['total_minutes'], reverse=True)
+    
+    # 大阪の天気情報を取得
+    weather_info = get_osaka_weather()
+    
+    # 天気に基づいてclass名を設定
+    weather_text = weather_info['today']['weather']
+    weather_code = weather_info['today']['weather_code']
+    
+    # 夜間判定
+    now = datetime.now()
+    is_night = now.hour >= 18 or now.hour < 6
+    
+    # 天気クラスを設定
+    weather_class = 'weather-sunny-clear'  # デフォルト
+    
+    if is_night:
+        weather_class = 'weather-night'
+    elif '雨' in weather_text or weather_code.startswith('3') or weather_code.startswith('4'):
+        weather_class = 'weather-rainy'
+    elif '雪' in weather_text or weather_code.startswith('6') or weather_code.startswith('7'):
+        weather_class = 'weather-snowy'
+    elif '曇' in weather_text or weather_code.startswith('2'):
+        weather_class = 'weather-cloudy'
+    elif ('晴' in weather_text and '曇' in weather_text) or weather_code.startswith('11'):
+        weather_class = 'weather-sunny-cloud'
+    elif '雷' in weather_text or weather_code.startswith('8'):
+        weather_class = 'weather-thunder'
+    elif '晴' in weather_text and '曇' not in weather_text or weather_code.startswith('10'):
+        weather_class = 'weather-sunny-clear'
+    
+    context = {
+        'ranking_users': ranking_data,
+        'start_of_week': start_of_week.strftime('%Y/%m/%d'),
+        'end_of_week': end_of_week.strftime('%Y/%m/%d'),
+        'week_number': week_number,
+        'weather_info': weather_info,
+        'weather_class': weather_class,
+    }
+    
+    return render(request, 'attendance/ranking.html', context)
