@@ -45,6 +45,21 @@
       color: #666;
     }
 
+    .weather-advice {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 10px;
+      padding: 1%;
+      margin-top: 3%;
+      font-size: 0.95rem;
+      border-left: 4px solid #ecc94b;
+      box-shadow: 0 4px 8px #f0dfa4;
+      box-sizing: border-box;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      text-align: center;
+    }
+    
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -59,9 +74,12 @@
 </head>
 <body>
   <div class="card-box">
-    {% if message %}
-      <p>{{ message }}</p>
-    {% endif %}
+    <div class="weather-advice">
+      <h5><i class="fas fa-info-circle"></i> あなたへのアドバイス</h5>
+      {% if message %}
+        <p>{{ message }}</p>
+      {% endif %}
+    </div>
     <div class="icon">✅</div>
     <h1>打刻が完了しました！</h1>
     <p>5秒後にトップページへ戻ります</p>

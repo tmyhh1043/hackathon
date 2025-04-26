@@ -68,7 +68,6 @@ for date in sorted(df['date'].unique()):
             'start_hour': start_hour_float,
             'user_mean_working_minutes': user_mean,
             'user_std_working_minutes': user_std,
-            'before_noon_flag': int(start_hour_float < 12.0),
             'yesterday_overtime_flag': int(yesterday_minutes >= 300),  # 昨日5時間以上勤務
             'global_mean_working_minutes': global_mean,
             'global_std_working_minutes': global_std,
@@ -77,9 +76,9 @@ for date in sorted(df['date'].unique()):
         # ターゲット設定
         if start_hour_float >= 12.0:
             target = 1  # 出勤遅すぎ（来なさすぎ）
-        elif user_mean < global_mean * 0.85:
+        elif user_mean < global_mean * 0.80:
             target = 1  # 個人がチームより極端に少ない（来なさすぎ）
-        elif user_mean > global_mean * 1.15:
+        elif user_mean > global_mean * 1.20:
             target = 2  # 頑張りすぎ
         else:
             target = 0  # 正常
@@ -101,14 +100,13 @@ feature_cols = [
     'start_hour',
     'user_mean_working_minutes',
     'user_std_working_minutes',
-    'before_noon_flag',
     'yesterday_overtime_flag',
     'global_mean_working_minutes',
     'global_std_working_minutes'
 ]
 
 X = feature_df[feature_cols]
-X = X.fillna(X.mean())  # 念のためNaN埋める
+X = X.fillna(0)  # 念のためNaN埋める
 y = feature_df['target']
 
 # --- データ分割（8:2） ---

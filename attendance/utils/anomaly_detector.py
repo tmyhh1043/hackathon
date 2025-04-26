@@ -42,12 +42,11 @@ def predict_and_generate_message(user_id, attendance_row):
     # --- モデルロード ---
     model = joblib.load(model_path)
 
-    # --- 特徴量セット（7個揃える） ---
+    # --- 特徴量セット（6個揃える） ---
     X = pd.DataFrame([{
         'start_hour': attendance_row.get('start_hour', 0),
         'user_mean_working_minutes': attendance_row.get('user_mean_working_minutes', 480),
         'user_std_working_minutes': attendance_row.get('user_std_working_minutes', 30),
-        'before_noon_flag': attendance_row.get('before_noon_flag', 1),
         'yesterday_overtime_flag': attendance_row.get('yesterday_overtime_flag', 0),
         'global_mean_working_minutes': attendance_row.get('global_mean_working_minutes', 470),
         'global_std_working_minutes': attendance_row.get('global_std_working_minutes', 40),

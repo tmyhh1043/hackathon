@@ -77,7 +77,7 @@ def record_and_redirect(request, direction):
         if yesterday_in and yesterday_out:
             working_minutes = int((yesterday_out.timestamp - yesterday_in.timestamp).total_seconds() // 60)
         else:
-            working_minutes = 480  # デフォルト8時間勤務
+            working_minutes = 300  # デフォルト5時間勤務
 
         # --- 直近1週間の個人勤務データ ---
         one_week_ago = today - timedelta(days=7)
@@ -102,8 +102,8 @@ def record_and_redirect(request, direction):
             user_mean_working_minutes = sum(user_durations) / len(user_durations)
             user_std_working_minutes = pd.Series(user_durations).std()
         else:
-            user_mean_working_minutes = 480
-            user_std_working_minutes = 30
+            user_mean_working_minutes = 360
+            user_std_working_minutes = 126
 
         # --- 全体勤務データ ---
         global_out_logs = AttendanceLog.objects.filter(
@@ -122,19 +122,15 @@ def record_and_redirect(request, direction):
                 duration = (out_log.timestamp - in_log.timestamp).total_seconds() / 60
                 global_durations.append(duration)
 
-        if global_durations:
-            global_mean_working_minutes = sum(global_durations) / len(global_durations)
-            global_std_working_minutes = pd.Series(global_durations).std()
-        else:
-            global_mean_working_minutes = 470
-            global_std_working_minutes = 40
+
+        global_mean_working_minutes = 320
+        global_std_working_minutes = 126
 
         # --- attendance_rowを7個の特徴量で作成 ---
         attendance_row = {
             'start_hour': start_hour,
             'user_mean_working_minutes': user_mean_working_minutes,
             'user_std_working_minutes': user_std_working_minutes,
-            'before_noon_flag': int(start_hour < 12.0),
             'yesterday_overtime_flag': int(working_minutes >= 540),
             'global_mean_working_minutes': global_mean_working_minutes,
             'global_std_working_minutes': global_std_working_minutes
