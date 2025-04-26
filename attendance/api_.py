@@ -16,6 +16,7 @@ import warnings
 from django.utils.timezone import now
 import datetime
 from django.contrib.auth import get_user_model
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 User = get_user_model()
 # ラベル0は岡田，ユーザネームはimgproc
@@ -62,7 +63,24 @@ def face_login_api(request):
             image_bytes = base64.b64decode(imgstr)
             nparr = np.frombuffer(image_bytes, np.uint8)
             frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                            
+
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+
+            # # 結果を保存
+            h_ls = []
+            for (x, y, w, h) in faces:
+                h_ls.append(h)
+            # 顔が検出されない場合は処理を行わない
+            if len(h_ls)==0:
+                file_path = file_path.replace("dataset", "dataset_cut")
+                cv2.imwrite(file_path, frame)
+                
+                i = np.argmax(h_ls)  
+                x, y, w, h = faces[i]    
+                face_img = frame[y:y+h, x:x+w]
+
+
             checkpoint = torch.load('attendance/weight/{}/net/weight_save_9999.tar'.format(model_name), map_location=torch.device('cpu'))
             model = create_model()
             model.load_state_dict(checkpoint['state_dict'])
