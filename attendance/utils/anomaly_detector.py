@@ -53,6 +53,7 @@ def predict_and_generate_message(user_id, attendance_row):
     }])
 
     X = X.fillna(0)  # 念のためNaN埋め
+    print(X)
 
     # --- 推論 ---
     prediction = model.predict(X)[0]  # 0: 正常, 1: 来なさすぎ, 2: 頑張りすぎ
@@ -60,7 +61,7 @@ def predict_and_generate_message(user_id, attendance_row):
     # --- メッセージ生成 ---
     if prediction == 1:
         # 来なさすぎ
-        prompt = "最近出勤が少なめなユーザーに、注意勧告をする日本語メッセージを短く作成してください。"
+        prompt = "最近出勤が少なめなユーザーに、注意勧告をするメッセージを関西弁で短く作成してください。"
         message = generate_text_with_api(prompt)
         if message:
             return message
@@ -69,7 +70,7 @@ def predict_and_generate_message(user_id, attendance_row):
         
     elif prediction == 2:
         # 頑張りすぎ
-        prompt = "頑張りすぎているユーザーに、ねぎらいと休息を促す日本語メッセージを短く作成してください。"
+        prompt = "頑張りすぎているユーザーに、めっちゃ褒めるのとねぎらいと休息を促すメッセージを関西弁でで短く作成してください。"
         message = generate_text_with_api(prompt)
         if message:
             return message
@@ -78,5 +79,10 @@ def predict_and_generate_message(user_id, attendance_row):
         
     else:
         # 正常
-        return "今日もお疲れ様でした！いつも安定した勤務、素晴らしいです😊"
+        prompt = "通常の勤務をしているユーザに応援するメッセージを関西弁で短く作成してください。"
+        message = generate_text_with_api(prompt)
+        if message:
+            return message
+        else:
+            return "いつも安定した勤務、素晴らしいです😊"
 

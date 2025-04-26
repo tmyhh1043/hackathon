@@ -77,32 +77,40 @@ def record_and_redirect(request, direction):
         if yesterday_in and yesterday_out:
             working_minutes = int((yesterday_out.timestamp - yesterday_in.timestamp).total_seconds() // 60)
         else:
-            working_minutes = 300  # デフォルト5時間勤務
+            working_minutes = 360  # デフォルト6時間勤務
 
-        # --- 直近1週間の個人勤務データ ---
-        one_week_ago = today - timedelta(days=7)
-        user_past_out_logs = AttendanceLog.objects.filter(
-            user=request.user,
-            type='out',
-            timestamp__date__range=[one_week_ago, yesterday]
-        )
-
+        # --- 直近1週間（平日のみ）勤務データ ---
         user_durations = []
-        for out_log in user_past_out_logs:
-            in_log = AttendanceLog.objects.filter(
-                user=request.user,
-                type='in',
-                timestamp__lt=out_log.timestamp
-            ).order_by('-timestamp').first()
-            if in_log:
-                duration = (out_log.timestamp - in_log.timestamp).total_seconds() / 60
-                user_durations.append(duration)
 
+        for day_offset in range(1, 8):  # 昨日まで7日間
+            day = today - timedelta(days=day_offset)
+
+            # 平日だけ対象（0:月〜4:金）
+            if day.weekday() <= 4:
+                in_log = AttendanceLog.objects.filter(
+                    user=request.user,
+                    type='in',
+                    timestamp__date=day
+                ).order_by('timestamp').first()
+
+                out_log = AttendanceLog.objects.filter(
+                    user=request.user,
+                    type='out',
+                    timestamp__date=day
+                ).order_by('timestamp').first()
+
+                if in_log and out_log:
+                    duration = (out_log.timestamp - in_log.timestamp).total_seconds() / 60
+                    user_durations.append(duration)
+                else:
+                    user_durations.append(0)  # 出勤してない日は0分扱い
+
+        # --- 平日の勤務時間だけで平均と標準偏差を計算 ---
         if user_durations:
             user_mean_working_minutes = sum(user_durations) / len(user_durations)
             user_std_working_minutes = pd.Series(user_durations).std()
         else:
-            user_mean_working_minutes = 360
+            user_mean_working_minutes = 437  # デフォルト
             user_std_working_minutes = 126
 
         # --- 全体勤務データ ---
@@ -123,7 +131,7 @@ def record_and_redirect(request, direction):
                 global_durations.append(duration)
 
 
-        global_mean_working_minutes = 320
+        global_mean_working_minutes = 437
         global_std_working_minutes = 126
 
         # --- attendance_rowを7個の特徴量で作成 ---
@@ -135,6 +143,8 @@ def record_and_redirect(request, direction):
             'global_mean_working_minutes': global_mean_working_minutes,
             'global_std_working_minutes': global_std_working_minutes
         }
+        
+        print(attendance_row)
 
         # --- モチベ管理メッセージ推論 ---
         message = predict_and_generate_message(request.user.id, attendance_row)

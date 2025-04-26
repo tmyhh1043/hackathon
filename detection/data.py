@@ -1,14 +1,15 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-import random
 import os
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
+import xgboost as xgb
+import matplotlib.pyplot as plt
 
-
+# --- データ読み込み ---
 df = pd.read_csv('./kintai-data.csv')
 df['date'] = pd.to_datetime(df['date'])
 
@@ -16,10 +17,6 @@ df['date'] = pd.to_datetime(df['date'])
 feature_data = []
 
 for date in sorted(df['date'].unique()):
-    global_past = df[df['date'] < date]
-    global_mean = global_past['working_minutes'].mean() if not global_past.empty else 480
-    global_std = global_past['working_minutes'].std() if not global_past.empty else 30
-
     for user_id in df['user_id'].unique():
         user_past = df[(df['user_id'] == user_id) & (df['date'] < date)].sort_values(by='date')
 
@@ -36,7 +33,7 @@ for date in sorted(df['date'].unique()):
             if not yesterday_data.empty:
                 yesterday_minutes = yesterday_data.iloc[0]['working_minutes']
             else:
-                yesterday_minutes = 480  # デフォルト
+                yesterday_minutes = 480
         else:
             user_mean = 480
             user_std = 30
@@ -49,9 +46,8 @@ for date in sorted(df['date'].unique()):
         # start_hour取得
         start_hour_raw = today_row.iloc[0]['start_hour']
 
-        # start_hourをfloat型に安全に変換する
         if pd.isna(start_hour_raw):
-            start_hour_float = 9.0  # デフォルト出勤時刻とかにする（お好みで）
+            start_hour_float = 9.0
         elif isinstance(start_hour_raw, str):
             if ':' in start_hour_raw:
                 hour, minute = map(int, start_hour_raw.split(':'))
@@ -61,41 +57,82 @@ for date in sorted(df['date'].unique()):
         else:
             start_hour_float = float(start_hour_raw)
 
-        # 特徴量作成
+        # --- 直近1週間の全ユーザー勤務データからglobal_mean, global_stdを計算 ---
+        one_week_ago = pd.to_datetime(date) - timedelta(days=7)
+        global_past_week = df[(df['date'] < date) & (df['date'] >= one_week_ago)]
+
+        if not global_past_week.empty:
+            global_mean = global_past_week['working_minutes'].mean()
+            global_std = global_past_week['working_minutes'].std()
+        else:
+            global_mean = 480
+            global_std = 30
+
+        # --- 特徴量セット ---
+        z_score = (user_mean - global_mean) / global_std
+
         feature_row = {
             'user_id': user_id,
             'date': date,
             'start_hour': start_hour_float,
             'user_mean_working_minutes': user_mean,
             'user_std_working_minutes': user_std,
-            'yesterday_overtime_flag': int(yesterday_minutes >= 300),  # 昨日5時間以上勤務
+            'yesterday_overtime_flag': int(yesterday_minutes >= 540),
             'global_mean_working_minutes': global_mean,
             'global_std_working_minutes': global_std,
+            'z_score': z_score
         }
-
-        # ターゲット設定
-        if start_hour_float >= 12.0:
-            target = 1  # 出勤遅すぎ（来なさすぎ）
-        elif user_mean < global_mean * 0.80:
-            target = 1  # 個人がチームより極端に少ない（来なさすぎ）
-        elif user_mean > global_mean * 1.20:
-            target = 2  # 頑張りすぎ
-        else:
-            target = 0  # 正常
-
-        feature_row['target'] = target
-
         feature_data.append(feature_row)
 
 # --- 特徴量DataFrame化 ---
 feature_df = pd.DataFrame(feature_data)
 
-# 保存
+# --- 保存 ---
 feature_df.to_csv('../user_models/features_april.csv', index=False)
 print("\n✅ 特徴量保存完了")
 print(feature_df.head())
 
-# 特徴量カラム
+# --- パーセンタイル閾値を計算 ---
+low_threshold = feature_df['z_score'].quantile(0.10)
+high_threshold = feature_df['z_score'].quantile(0.90)
+
+print(f"Low threshold (10%): {low_threshold:.3f}")
+print(f"High threshold (90%): {high_threshold:.3f}")
+
+# --- ターゲット列を作成 ---
+feature_df['target'] = feature_df.apply(lambda row: 
+    1 if row['z_score'] < low_threshold else
+    2 if row['z_score'] > high_threshold or row['yesterday_overtime_flag'] == 1 else
+    0, axis=1
+)
+
+# --- Zスコア分布ヒストグラム ---
+plt.figure(figsize=(8,6))
+plt.hist(feature_df['z_score'], bins=30, edgecolor='k')
+plt.axvline(low_threshold, color='red', linestyle='--', label=f'{low_threshold:.2f} Threshold (10%)')
+plt.axvline(high_threshold, color='green', linestyle='--', label=f'{high_threshold:.2f} Threshold (90%)')
+plt.title('Distribution of Z-Score (User Mean vs Global)')
+plt.xlabel('Z-Score')
+plt.ylabel('Frequency')
+plt.legend()
+plt.grid(True)
+plt.savefig('./user_mean_vs_global_mean_distribution.png')
+plt.show()
+plt.close()
+
+# --- 昨日オーバータイムフラグの棒グラフ ---
+flag_counts = feature_df['yesterday_overtime_flag'].value_counts().sort_index()
+plt.figure(figsize=(6,4))
+plt.bar(flag_counts.index, flag_counts.values, tick_label=['Not Overtime', 'Overtime'])
+plt.title('Yesterday Overtime (>= 540 minutes)')
+plt.xlabel('Overtime Status')
+plt.ylabel('Number of Users')
+plt.grid(axis='y')
+plt.savefig('./yesterday_overtime_flag_distribution.png')
+plt.show()
+plt.close()
+
+# --- 特徴量カラム ---
 feature_cols = [
     'start_hour',
     'user_mean_working_minutes',
@@ -115,11 +152,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # --- モデル学習 ---
-model = RandomForestClassifier(
-    n_estimators=100,
+model = xgb.XGBClassifier(
+    n_estimators=150,
     max_depth=5,
+    learning_rate=0.05,
     random_state=42,
-    class_weight='balanced'  # クラス不均衡対応
+    use_label_encoder=False,
+    eval_metric='mlogloss'  # マルチクラス分類なのでこれ
 )
 model.fit(X_train, y_train)
 
