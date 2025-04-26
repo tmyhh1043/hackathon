@@ -38,11 +38,11 @@ def get_users_api(request):
     return JsonResponse(get_users_cached(), safe=False)
 
 users = User.objects.all()
-print(len(users))
+# print(len(users))
 name_ls = []
 for u in users:
     name_ls.append(u.get_username())
-    print(u.get_username())
+    # print(u.get_username())
 print(name_ls, len(name_ls))
 # exit('10000')
 model_name = 'allcnn'
@@ -72,9 +72,9 @@ def face_login_api(request):
             for (x, y, w, h) in faces:
                 h_ls.append(h)
             # 顔が検出されない場合は処理を行わない
-            if len(h_ls)==0:
-                file_path = file_path.replace("dataset", "dataset_cut")
-                cv2.imwrite(file_path, frame)
+            if len(h_ls)!=0:
+                # file_path = file_path.replace("dataset", "dataset_cut")
+                # cv2.imwrite(file_path, frame)
                 
                 i = np.argmax(h_ls)  
                 x, y, w, h = faces[i]    
