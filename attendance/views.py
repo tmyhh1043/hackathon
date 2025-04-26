@@ -59,9 +59,18 @@ def record_and_redirect(request, direction):
             type='out',
             timestamp__date=today
         ).exists()
-
+        
         if already_clocked_out:
             return redirect('record_leave') 
+        
+        # まだ出勤していない場合
+        already_clocked_in = AttendanceLog.objects.filter(
+            user=request.user,
+            type='in',
+            timestamp__date=today
+        ).exists()
+        if not already_clocked_in:
+            return redirect('not_record')
 
         # 出勤ログを保存
         AttendanceLog.objects.create(
@@ -86,6 +95,11 @@ def record_attend(request):
 def record_leave(request):
     logout(request)
     return render(request, 'attendance/record_leave.html')
+
+@login_required
+def not_record(request):
+    logout(request)
+    return render(request, 'attendance/not_record.html')
 
 
 from django.core.paginator import Paginator
