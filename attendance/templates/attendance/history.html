@@ -1,144 +1,181 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>勤怠履歴</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            text-align: center;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>勤怠履歴</title>
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-        .graph-wrapper {
-          background-color: #ffffff;
-          border: 1px solid #ddd;
-          border-radius: 10px;
-          padding: 16px 24px;
-          margin: 24px auto;
-          width: fit-content;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-          text-align: center;
-        }
+  <!-- Google Fonts: Noto Sans JP -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-        .graph-wrapper h4 {
-          margin-bottom: 12px;
-          font-weight: 600;
-          color: #333;
-        }
-        h2 {
-            color: #333;
-        }
-        table {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            table-layout: fixed; /* セル幅を統一 */
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .status-attendance {
-            color: green;
-            font-weight: bold;
-        }
-        .status-leave {
-            color: red;
-            font-weight: bold;
-        }
-        button {
-            padding: 10px 20px;
-            margin-top: 20px;
-            border: none;
-            background-color: #28a745;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        .pagination {
-            margin-top: 20px;
-        }
-        .pagination a {
-            padding: 8px 12px;
-            text-decoration: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            margin: 0 5px;
-        }
-        .pagination a:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #333;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      min-height: calc(100vh - 2rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .card {
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: none;
+      padding: 20px;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
+      color: white;
+      font-weight: 700;
+      padding: 1.2rem;
+      text-align: center;
+      font-size: 1.8rem;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      color: #333;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .date-container {
+      text-align: center;
+      padding-bottom: 10px;
+      font-weight: 500;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .status-attendance {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-leave {
+      color: red;
+      font-weight: bold;
+    }
+
+    .btn-back {
+      padding: 0.7rem 1.5rem;
+      border-radius: 50px;
+      background: linear-gradient(to right, #28a745, #20c997);
+      border: none;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      display: block;
+      width: fit-content;
+      margin: 1rem auto;
+    }
+
+    .btn-back:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        勤怠履歴（{{ start_of_week }} ~ {{ end_of_week }}）
+      </div>
 
-  <h2>勤怠履歴（{{ start_of_week }} ~ {{ end_of_week }}）</h2>
+      <div class="date-container">
+        <p>週別表示：
+          <a href="?week={{ week_number|add:1 }}">前の週</a> |
+          {% if week_number > 0 %}
+            <a href="?week={{ week_number|add:-1 }}">次の週</a> |
+          {% endif %}
+          <a href="?week=0">今週</a>
+        </p>
+      </div>
 
-  <!-- 週の切り替え -->
-  <p>週別表示：
-    <a href="?week={{ week_number|add:1 }}">前の週</a> |
-    {% if week_number > 0 %}
-      <a href="?week={{ week_number|add:-1 }}">次の週</a> |
-    {% endif %}
-    <a href="?week=0">今週</a>
-  </p>
-  
-  <!-- 勤怠履歴表 -->
-  <table border="1">
-    <tr>
-      <th>ユーザ名</th>
-      <th>年月日</th>
-      <th>時間</th>
-      <th>種別</th>
-    </tr>
-    {% for log in page_obj %}
-      <tr>
-        <td>{{ log.user.username }}</td>
-        <td>{{ log.timestamp|date:"Y-m-d(D)" }}</td>
-        <td>{{ log.timestamp|date:"H:i" }}</td>
-        <td class="{% if log.type == 'in' %}status-attendance{% elif log.type == 'out' %}status-leave{% endif %}">
-          {{ log.get_type_display }}
-      </td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="4">勤怠記録がありません。</td></tr>
-    {% endfor %}
-  </table>
-  
-  <!-- ページネーション -->
-  <div>
-    {% if page_obj.has_previous %}
-      <a href="?week={{ week_number }}&page=1">最初</a>
-      <a href="?week={{ week_number }}&page={{ page_obj.previous_page_number }}">前</a>
-    {% endif %}
-  
-    <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-  
-    {% if page_obj.has_next %}
-      <a href="?week={{ week_number }}&page={{ page_obj.next_page_number }}">次</a>
-      <a href="?week={{ week_number }}&page={{ page_obj.paginator.num_pages }}">最後</a>
-    {% endif %}
-    <p>
-      <a href="{% url 'logout_to_top' %}">
-          <button type="button">打刻画面に戻る</button>
-      </a>
-    </p>
+      <table>
+        <tr>
+          <th>ユーザ名</th>
+          <th>年月日</th>
+          <th>時間</th>
+          <th>種別</th>
+        </tr>
+        {% for log in page_obj %}
+          <tr>
+            <td>{{ log.user.username }}</td>
+            <td>{{ log.timestamp|date:"Y-m-d(D)" }}</td>
+            <td>{{ log.timestamp|date:"H:i" }}</td>
+            <td class="{% if log.type == 'attendance' %}status-attendance{% elif log.type == 'leave' %}status-leave{% endif %}">
+              {{ log.get_type_display }}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4">勤怠記録がありません。</td></tr>
+        {% endfor %}
+      </table>
+
+      <div class="text-center">
+        {% if page_obj.has_previous %}
+          <a href="?week={{ week_number }}&page=1">最初</a>
+          <a href="?week={{ week_number }}&page={{ page_obj.previous_page_number }}">前</a>
+        {% endif %}
+        <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a href="?week={{ week_number }}&page={{ page_obj.next_page_number }}">次</a>
+          <a href="?week={{ week_number }}&page={{ page_obj.paginator.num_pages }}">最後</a>
+        {% endif %}
+      </div>
+
+      <p class="text-center">
+        <a href="{% url 'logout_to_top' %}" class="btn-back">打刻画面に戻る</a>
+      </p>
+    </div>
   </div>
 </body>
 </html>
