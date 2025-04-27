@@ -151,7 +151,7 @@
             <td>{{ log.user.username }}</td>
             <td>{{ log.timestamp|date:"Y-m-d(D)" }}</td>
             <td>{{ log.timestamp|date:"H:i" }}</td>
-            <td class="{% if log.type == 'attendance' %}status-attendance{% elif log.type == 'leave' %}status-leave{% endif %}">
+            <td class="{% if log.type == 'in' %}status-attendance{% elif log.type == 'out' %}status-leave{% endif %}">
               {{ log.get_type_display }}
             </td>
           </tr>
