@@ -42,18 +42,18 @@ def predict_and_generate_message(user_id, attendance_row):
     # --- モデルロード ---
     model = joblib.load(model_path)
 
-    # --- 特徴量セット（7個揃える） ---
+    # --- 特徴量セット（6個揃える） ---
     X = pd.DataFrame([{
         'start_hour': attendance_row.get('start_hour', 0),
         'user_mean_working_minutes': attendance_row.get('user_mean_working_minutes', 480),
         'user_std_working_minutes': attendance_row.get('user_std_working_minutes', 30),
-        'before_noon_flag': attendance_row.get('before_noon_flag', 1),
         'yesterday_overtime_flag': attendance_row.get('yesterday_overtime_flag', 0),
         'global_mean_working_minutes': attendance_row.get('global_mean_working_minutes', 470),
         'global_std_working_minutes': attendance_row.get('global_std_working_minutes', 40),
     }])
 
     X = X.fillna(0)  # 念のためNaN埋め
+    print(X)
 
     # --- 推論 ---
     prediction = model.predict(X)[0]  # 0: 正常, 1: 来なさすぎ, 2: 頑張りすぎ
@@ -61,23 +61,28 @@ def predict_and_generate_message(user_id, attendance_row):
     # --- メッセージ生成 ---
     if prediction == 1:
         # 来なさすぎ
-        prompt = "最近出勤が少なめなユーザーに、注意勧告をする日本語メッセージを短く作成してください。"
+        prompt = "最近出勤が少なめなユーザーに、注意勧告をするメッセージを関西弁で短く作成してください。"
         message = generate_text_with_api(prompt)
         if message:
             return message
         else:
-            return "最近お疲れ気味かな？無理せずゆっくりペースを取り戻そうね！"
+            return "ちょっと出勤日数、ホンマに少ないみたいやで！"
         
     elif prediction == 2:
         # 頑張りすぎ
-        prompt = "頑張りすぎているユーザーに、ねぎらいと休息を促す日本語メッセージを短く作成してください。"
+        prompt = "頑張りすぎているユーザーに、めっちゃ褒めるのとねぎらいと休息を促すメッセージを関西弁でで短く作成してください。"
         message = generate_text_with_api(prompt)
         if message:
             return message
         else:
-            return "すごく頑張ってるね！体調も大事にしながら、無理しないでね✨"
+            return "いつも頑張りすぎやで！ めっちゃ偉いやん！ えらいなぁ。せやけど、たまにはゆっくり休むことも大事やで。"
         
     else:
         # 正常
-        return "今日もお疲れ様でした！いつも安定した勤務、素晴らしいです😊"
+        prompt = "通常の勤務をしているユーザに応援するメッセージを関西弁で短く作成してください。"
+        message = generate_text_with_api(prompt)
+        if message:
+            return message
+        else:
+            return "今日も一日、無理せんと、ええ感じで頑張ってや！応援してるで！"
 
