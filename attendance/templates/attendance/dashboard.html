@@ -344,13 +344,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('timeSummary').innerHTML = `<i class="fas fa-business-time"></i>現在の出勤時間：${hours}時間${minutes}分`;
 
   // ドーナツチャート - オリジナルの設定を維持
+  let donutColors;
+  if (totalMinutes >= 2400) {
+    // 週40時間を超えたら全部緑
+    donutColors = ['#4ade80', '#4ade80'];
+  } else {
+    donutColors = ['#4ade80', '#e5e7eb'];
+  }
   new Chart(document.getElementById('donutChart').getContext('2d'), {
     type: 'doughnut',
     data: {
       labels: ['出勤時間', '残り'],
       datasets: [{
         data: [totalMinutes, 2400 - totalMinutes],
-        backgroundColor: ['#4ade80', '#e5e7eb']
+        backgroundColor: donutColors
       }]
     },
     options: { 
