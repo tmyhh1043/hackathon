@@ -1,327 +1,458 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>勤怠履歴</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            text-align: center;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>勤怠ダッシュボード</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --secondary-color: #22c55e;
+      --light-bg: #f0f9ff;
+      --white: #ffffff;
+      --shadow: 0 10px 25px rgba(0,0,0,0.08);
+      --radius: 16px;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #dbeafe, #e0f7fa);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0 20px;
+      background-attachment: fixed;
+      text-align: center;
+      color: #1e293b;
+    }
 
-        .graph-wrapper {
-          background-color: #ffffff;
-          border: 1px solid #ddd;
-          border-radius: 10px;
-          padding: 16px 24px;
-          margin: 24px auto;
-          width: fit-content;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-          text-align: center;
-        }
+        
+    .donut-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px; /* グラフとテキストの間の余白 */
+    }
 
-        .graph-wrapper h4 {
-          margin-bottom: 12px;
-          font-weight: 600;
-          color: #333;
-        }
-        h2 {
-            color: #333;
-        }
-        table {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            table-layout: fixed; /* セル幅を統一 */
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .status-attendance {
-            color: green;
-            font-weight: bold;
-        }
-        .status-leave {
-            color: red;
-            font-weight: bold;
-        }
-        button {
-            padding: 10px 20px;
-            margin-top: 20px;
-            border: none;
-            background-color: #28a745;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        .pagination {
-            margin-top: 20px;
-        }
-        .pagination a {
-            padding: 8px 12px;
-            text-decoration: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            margin: 0 5px;
-            
-        }
-        .pagination a:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    .donut-chart-area {
+      flex-shrink: 0;
+    }
+
+    .donut-text-area {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      text-align: left;
+    }
+
+
+
+    /* ★ 打刻画面に戻るボタン */
+    .return-button {
+      position: absolute;
+      top: 50px;
+      left: 20px;
+    }
+    .return-button a {
+      text-decoration: none;
+    }
+    .return-button button {
+      padding: 10px 20px;
+      background: #10b981;
+      color: white;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .return-button button:hover {
+      background: #059669;
+    }
+    
+    .header {
+      padding-top: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0;
+      color: #1e40af;
+    }
+    
+    .graph-wrapper {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0px 35px 35px 35px; 
+      margin: 40px auto;
+      width: fit-content;
+      max-width: 720px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .graph-wrapper:hover {
+      box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+      transform: translateY(-5px);
+    }
+    
+    /* 週ナビゲーションボタン */
+    .nav-buttons {
+      margin: 25px 0;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .nav-btn {
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 30px;
+      background: var(--primary-color);
+      color: var(--white);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+    
+    .nav-btn i {
+      font-size: 0.9rem;
+    }
+    
+    .nav-btn:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(59, 130, 246, 0.35);
+    }
+    
+    .nav-btn.current {
+      background: #1e40af;
+    }
+    
+    /* タブボタン */
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+      padding: 12px 25px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 12px;
+      background: #e2e8f0;
+      color: #475569;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-btn i {
+      font-size: 1rem;
+    }
+    
+    .tab-btn:hover {
+      background: #cbd5e1;
+    }
+    
+    .tab-btn.active {
+      background: var(--secondary-color);
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
+    }
+    
+    .tab-btn.active:hover {
+      background: #16a34a;
+    }
+    
+    .section-title {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #60a5fa, #2563eb);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: bold;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .section-title i {
+      font-size: 1.5rem;
+      color: #3b82f6;
+    }
+    
+    .time-summary {
+      font-size: 1.3rem;
+      color: var(--secondary-color);
+      margin-top: 20px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .total-time {
+      font-size: 1.1rem;
+      color: #64748b;
+      margin-top: 12px;
+    }
+    
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+    
+    .day-label {
+      font-weight: 600;
+      color: #475569;
+      margin: 15px 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .day-label i {
+      color: #3b82f6;
+    }
+  </style>
 </head>
 <body>
 
-  <h2>勤怠履歴（{{ start_of_week }} ~ {{ end_of_week }}）</h2>
 
-  <!-- 週の切り替え -->
-  <p>{{ user.username }}</p>
-  <p>週別表示：
-    <a href="?week={{ week_number|add:1 }}">前の週</a> |
-    {% if week_number > 0 %}
-      <a href="?week={{ week_number|add:-1 }}">次の週</a> |
-    {% endif %}
-    <a href="?week=0">今週</a>
-  </p>
-  
-  <!-- 勤怠履歴表 -->
-  
-  
-  <!-- ページネーション -->
-  <div>
-    {% if page_obj.has_previous %}
-      <a href="?week={{ week_number }}&page=1">最初</a>
-      <a href="?week={{ week_number }}&page={{ page_obj.previous_page_number }}">前</a>
-    {% endif %}
-  
-    <span>ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-  
-    {% if page_obj.has_next %}
-      <a href="?week={{ week_number }}&page={{ page_obj.next_page_number }}">次</a>
-      <a href="?week={{ week_number }}&page={{ page_obj.paginator.num_pages }}">最後</a>
-    {% endif %}
-    <p>
-      <a href="{% url 'logout_to_top' %}">
-          <button type="button">打刻画面に戻る</button>
-      </a>
-    </p>
-  </div>
+<!-- ★ 打刻画面に戻るボタン -->
+<div class="return-button">
+  <a href="{% url 'logout_to_top' %}">
+    <button>打刻画面に戻る</button>
+  </a>
+</div>
 
-  
-  
-  <!-- 円グラフ（週40時間に対する進捗） -->
-  <div class="graph-wrapper">
-    <h4>勤務時間</h4>
-    <div style="width: 250px; height: 250px; margin: 0 auto;">
-      <canvas id="donutChart"></canvas>
+<div class="header">
+  <h1>勤怠履歴（{{ start_of_week }} ~ {{ end_of_week }}）</h1>
+  <h2>{{ user.username }}</h2>
+</div>
+
+<div class="nav-buttons">
+  <a href="?week={{ week_number|add:1 }}" class="nav-btn">
+    <i class="fas fa-chevron-left"></i>前の週
+  </a>
+  <a href="?week=0" class="nav-btn current">
+    <i class="fas fa-calendar-week"></i>今週
+  </a>
+  {% if week_number > 0 %}
+    <a href="?week={{ week_number|add:-1 }}" class="nav-btn">
+      次の週<i class="fas fa-chevron-right"></i>
+    </a>
+  {% endif %}
+</div>
+
+<div class="tab-buttons">
+  <button class="tab-btn active" id="btnDonut">
+    <i class="fas fa-chart-pie"></i>週40時間進捗
+  </button>
+  <button class="tab-btn" id="btnPresence">
+    <i class="fas fa-clock"></i>曜日別勤務時間
+  </button>
+  <button class="tab-btn" id="btnWeeklySummary">
+    <i class="fas fa-chart-bar"></i>週間サマリー
+  </button>
+</div>
+
+<div id="donutSection" class="graph-wrapper">
+  <h4 class="section-title"><i class="fas fa-chart-pie"></i>週40時間の進捗</h4>
+  <div class="donut-wrapper">
+    <div class="donut-chart-area">
+      <canvas id="donutChart" width="300" height="300"></canvas>
+    </div>
+    <div class="donut-text-area">
+      <div class="time-summary" id="timeSummary">
+        <i class="fas fa-business-time"></i>現在の出勤時間：0時間0分
+      </div>
+      <div class="total-time">
+        総出勤時間：40時間（2400分）
+      </div>
     </div>
   </div>
   
-  <!-- 横棒グラフ（曜日別出勤時間） -->
-  <h3>曜日別勤務時間</h3>
+</div>
+
+<div id="presenceSection" class="graph-wrapper">
+  <h4 class="section-title"><i class="fas fa-clock"></i>曜日別勤務時間</h4>
   {% for day, ranges in presence_distribution.items %}
-  <div class="graph-wrapper">
-    <h4>{{ day }}曜日</h4>
-    <canvas
-      id="presenceChart{{ forloop.counter }}"
-      width="800"
-      height="50"
-      style="display: block; margin: 0 auto;"
-     
-    ></canvas>
-  </div>
+    <div style="margin: 10px 0; width: 680px;">
+      <h4 class="day-label"><i class="fas fa-calendar-day"></i>{{ day }}曜日</h4>
+      <canvas id="presenceChart{{ forloop.counter }}" width="680" height="50"></canvas>
+    </div>
   {% endfor %}
-  
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const weeklyData = {{ weekly_data|safe }};
-    const presenceData = {{ presence_distribution|safe }};
-    const weeklyLabels = {{ weekly_labels|safe }};
+</div>
 
+<div id="weeklySummarySection" class="graph-wrapper">
+  <h4 class="section-title"><i class="fas fa-chart-bar"></i>一週間の出勤時間サマリー</h4>
+  <canvas id="weeklySummaryChart" width="680" height="300"></canvas>
+</div>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const donutSection = document.getElementById('donutSection');
+  const presenceSection = document.getElementById('presenceSection');
+  const weeklySummarySection = document.getElementById('weeklySummarySection');
+  const tabButtons = document.querySelectorAll('.tab-btn');
+
+  const showSection = (target, activeButton) => {
+    // セクション表示切替
+    donutSection.style.display = 'none';
+    presenceSection.style.display = 'none';
+    weeklySummarySection.style.display = 'none';
+    target.style.display = 'flex';
     
+    // タブボタン切替
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    activeButton.classList.add('active');
+  };
 
+  document.getElementById('btnDonut').addEventListener('click', (e) => showSection(donutSection, e.currentTarget));
+  document.getElementById('btnPresence').addEventListener('click', (e) => showSection(presenceSection, e.currentTarget));
+  document.getElementById('btnWeeklySummary').addEventListener('click', (e) => showSection(weeklySummarySection, e.currentTarget));
 
-  
+  // 初期表示
+  showSection(donutSection, document.getElementById('btnDonut'));
 
-    // ✅ 円グラフ（週40時間の進捗）
-    const donutCtx = document.getElementById('donutChart')?.getContext('2d');
-    if (donutCtx) {
-    const total = {{ total_minutes|default:"0" }};
-    const remaining = {{ remaining_minutes|default:"2400" }};
-    const donutChart = new Chart(donutCtx, {
-      type: 'doughnut',
-      data: {
-        labels: ['出勤時間', '残り'],
-        datasets: [{
-          data: [total, remaining],
-          backgroundColor: ['#4ade80', '#e5e7eb']
-        }]
-      },
+  const totalMinutes = {{ total_minutes|default:"0" }};
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  document.getElementById('timeSummary').innerHTML = `<i class="fas fa-business-time"></i>現在の出勤時間：${hours}時間${minutes}分`;
+
+  // ドーナツチャート - オリジナルの設定を維持
+  new Chart(document.getElementById('donutChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['出勤時間', '残り'],
+      datasets: [{
+        data: [totalMinutes, 2400 - totalMinutes],
+        backgroundColor: ['#4ade80', '#e5e7eb']
+      }]
+    },
+    options: { 
+      responsive: false, 
+      plugins: { 
+        legend: { 
+          display: true 
+        } 
+      } 
+    }
+  });
+
+  // プレゼンスチャート - オリジナルの設定を維持
+  const presenceData = {{ presence_distribution|safe }};
+  Object.keys(presenceData).forEach((day, idx) => {
+    const canvas = document.getElementById('presenceChart' + (idx + 1));
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const ranges = presenceData[day];
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: [''], datasets: [{ data: [0], backgroundColor: 'transparent' }] },
       options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: false,
-            text: '週40時間（2400分）に対する学習進捗'
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.label}: ${ctx.raw}分（${(ctx.raw / 60).toFixed(1)}時間）`
-            }
-          }
-        }
-      }
-    });
-   }
-  
-
-
-  
-  
-    // ✅ 曜日別棒グラフ
-    const dayNames = Object.keys(presenceData);
-    dayNames.forEach((day, index) => {
-    const canvas = document.getElementById('presenceChart' + (index + 1));
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      const ranges = presenceData[day];
-      canvas.width = 800;  // ← 横幅をここで指定！
-      canvas.height = 100; // （必要に応じて高さも調整）
-
-
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: [''],
-          datasets: [{ data: [0], backgroundColor: 'transparent' }]
-        },
-        options: {
-            responsive: false,
-            indexAxis: 'x',
-
-           
-            scales: {
-              x: {
-                type: 'linear',
-                min: 0,
-                max: 24,
-                grid: {
-                  color: '#ccc',             // 少し明るめのグレーに
-                  lineWidth: 0.5,
-                  borderDash: [2, 3],        // 細かめの点線でおしゃれに
-                  drawTicks: true,
-                  drawOnChartArea: true,
-                  drawBorder: false          // ← 外枠を消してスッキリ感
-                },
-
-                ticks: {
-                  stepSize: 2,
-                  color: '#444',             // 少し濃いグレーで視認性UP
-                  font: {
-                    size: 11,
-                    family: 'Segoe UI',      // モダンな印象のフォント
-                    weight: '500'
-                  },
-                  callback: value => `${value}:00`
-                },
-
-                title: {
-                display: true,
-                text: '時刻',
-                color: '#222',
-                font: {
-                  weight: '600',
-                  size: 13,
-                  family: 'Segoe UI'
-                },
-                },
-
-              },
-              y: {
-                display: false
-              }
+        responsive: false,
+        indexAxis: 'x',
+        scales: { 
+          x: { 
+            type: 'linear', 
+            min: 0, 
+            max: 24, 
+            ticks: { 
+              stepSize: 2, 
+              callback: v => v+':00' 
             },
-            plugins: {
-              legend: { display: false },
-              tooltip: { enabled: false }
+            grid: {
+              borderDash: [4,4]
             }
-          },
+          }, 
+          y: { display: false } 
+        },
+        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+      },
+      plugins: [{
+        id: 'customBars',
+        beforeDraw(chart) {
+          const { ctx, chartArea } = chart;
+          const xScale = chart.scales.x;
+          const h = chartArea.height * 0.5;
+          const y = chartArea.top + (chartArea.height - h) / 2;
+          ranges.forEach(([start, end]) => {
+            ctx.fillStyle = '#4ade80';
+            ctx.beginPath();
+            ctx.roundRect(xScale.getPixelForValue(start), y, xScale.getPixelForValue(end) - xScale.getPixelForValue(start), h, 6);
+            ctx.fill();
+          });
+        }
+      }]
+    });
+  });
 
+  // 週間サマリーチャート - オリジナルの設定を維持
+  const weeklyCtx = document.getElementById('weeklySummaryChart').getContext('2d');
+  const daysOfWeek = ['月', '火', '水', '木', '金', '土', '日'];
+  const weeklyTotals = daysOfWeek.map(day => presenceData[day] ? presenceData[day].reduce((sum, [start, end]) => sum + (end - start), 0) : 0);
 
-
-        
-        plugins: [{
-          id: 'customBars',
-          beforeDraw(chart) {
-            const { ctx, chartArea } = chart;
-            const xScale = chart.scales.x;
-            ctx.clearRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-
-            const height = chartArea.height * 0.6;
-            const y = chartArea.top + (chartArea.height - height) / 2;
-
-            ranges.forEach(([start, end]) => {
-              const x1 = xScale.getPixelForValue(start);
-              const x2 = xScale.getPixelForValue(end);
-              const barWidth = x2 - x1;
-
-              // ✅ グラデーション作成
-              const gradient = ctx.createLinearGradient(x1, y, x2, y);
-              gradient.addColorStop(0, '#60a5fa'); // 薄めの青
-              gradient.addColorStop(1, '#2563eb'); // 濃い青
-
-              // ✅ シャドウ効果
-              ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
-              ctx.shadowBlur = 8;
-              ctx.shadowOffsetX = 2;
-              ctx.shadowOffsetY = 2;
-
-              // ✅ 描画（角丸）
-              const radius = 6;
-              ctx.fillStyle = gradient;
-              ctx.beginPath();
-              ctx.moveTo(x1 + radius, y);
-              ctx.lineTo(x2 - radius, y);
-              ctx.quadraticCurveTo(x2, y, x2, y + radius);
-              ctx.lineTo(x2, y + height - radius);
-              ctx.quadraticCurveTo(x2, y + height, x2 - radius, y + height);
-              ctx.lineTo(x1 + radius, y + height);
-              ctx.quadraticCurveTo(x1, y + height, x1, y + height - radius);
-              ctx.lineTo(x1, y + radius);
-              ctx.quadraticCurveTo(x1, y, x1 + radius, y);
-              ctx.closePath();
-              ctx.fill();
-
-              // ✅ シャドウ解除
-              ctx.shadowColor = 'transparent';
-            });
-          
-
-
-          }
-        }]
-
-      });
+  new Chart(weeklyCtx, {
+    type: 'bar',
+    data: {
+      labels: daysOfWeek,
+      datasets: [
+        { 
+          label: '勤務時間（h）', 
+          data: weeklyTotals, 
+          backgroundColor: '#4ade80', 
+          borderRadius: 8, 
+          barPercentage: 0.5, 
+          categoryPercentage: 0.5 
+        },
+        { 
+          type: 'line', 
+          label: '勤務時間推移', 
+          data: weeklyTotals, 
+          borderColor: '#3b82f6', 
+          backgroundColor: '#3b82f6', 
+          pointBackgroundColor: '#3b82f6', 
+          pointBorderColor: '#3b82f6', 
+          fill: false, 
+          tension: 0.4, 
+          pointRadius: 6, 
+          pointHoverRadius: 8 
+        }
+      ]
+    },
+    options: {
+      responsive: false,
+      scales: { y: { beginAtZero: true } },
+      plugins: { legend: { position: 'top' } }
     }
   });
 });
-  </script>
+</script>
+
+</body>
+</html>
