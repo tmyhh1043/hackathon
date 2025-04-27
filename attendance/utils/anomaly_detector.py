@@ -66,7 +66,7 @@ def predict_and_generate_message(user_id, attendance_row):
         if message:
             return message
         else:
-            return "最近お疲れ気味かな？無理せずゆっくりペースを取り戻そうね！"
+            return "ちょっと出勤日数、ホンマに少ないみたいやで！"
         
     elif prediction == 2:
         # 頑張りすぎ
@@ -75,7 +75,7 @@ def predict_and_generate_message(user_id, attendance_row):
         if message:
             return message
         else:
-            return "すごく頑張ってるね！体調も大事にしながら、無理しないでね✨"
+            return "いつも頑張りすぎやで！ めっちゃ偉いやん！ えらいなぁ。せやけど、たまにはゆっくり休むことも大事やで。"
         
     else:
         # 正常
@@ -84,5 +84,5 @@ def predict_and_generate_message(user_id, attendance_row):
         if message:
             return message
         else:
-            return "いつも安定した勤務、素晴らしいです😊"
+            return "今日も一日、無理せんと、ええ感じで頑張ってや！応援してるで！"
 
