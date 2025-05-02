@@ -2,11 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from attendance.model_train.util import *
 
-def create_model():
-    model = get_model('allcnn', num_classes=5)
-    return model
 
 def main():
     """Run administrative tasks."""

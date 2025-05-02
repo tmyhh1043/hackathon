@@ -279,7 +279,7 @@
     <div class="login-card">
       <h2 class="section-title">ログイン</h2>
 
-      <!-- カメラによる顔認証 -->
+      <!-- カメラによる顔認証
       <div class="two-column">
         <div class="column">
           <h4 class="text-center mb-3">顔認証でログイン</h4>
@@ -287,11 +287,11 @@
             <video id="camera" autoplay playsinline></video>
             <div id="auth-status" class="auth-status">認証状態がここに表示されます</div>
           </div>
-        </div>
+        </div> -->
         
         <!-- 通常のログインフォーム -->
         <div class="column">
-          <h4 class="text-center mb-3">従来のログイン</h4>
+          <!-- <h4 class="text-center mb-3">従来のログイン</h4> -->
           <form method="post" class="login-form">
             {% csrf_token %}
             
@@ -395,75 +395,6 @@
         document.body.className = 'weather-sunny-clear'; // デフォルト
       }
     });
-    
-    // カメラ映像を取得
-    const video = document.getElementById("camera");
-    const canvas = document.getElementById("canvas");
-    const context = canvas.getContext("2d");
-    const authStatus = document.getElementById("auth-status");
-
-    // カメラの設定
-    const constraints = {
-      video: {
-        width: { ideal: 320 },
-        height: { ideal: 240 },
-        facingMode: "user" // 前面カメラを優先
-      }
-    };
-
-    // カメラ映像を取得
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then(stream => {
-        video.srcObject = stream;
-        video.play();
-      })
-      .catch(err => {
-        console.log("カメラのアクセスに失敗しました:", err);
-        authStatus.textContent = "カメラにアクセスできません。カメラの許可を確認してください。";
-        authStatus.className = "auth-status failure";
-      });
-
-    // 定期的にフレームを取得して送信
-    let authCount = 0;
-    setInterval(() => {
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = canvas.toDataURL("image/jpeg"); // Base64エンコード
-
-      // サーバーに送信
-      fetch("/face_login_api/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": "{{ csrf_token }}", // CSRFトークンが必要な場合
-        },
-        body: JSON.stringify({ image_data: imageData }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          console.log("顔認証成功:", data.message);
-          authStatus.textContent = "認証成功: " + data.message;
-          authStatus.className = "auth-status success";
-          
-          // 認証成功の場合、自動的にログインを実行
-          authCount++;
-          if (authCount >= 1) { // 連続3回成功したら自動ログイン
-            window.location.href = "{{ request.GET.next|default:'/' }}";
-          }
-        } else {
-          console.log("顔認証失敗:", data.message);
-          authStatus.textContent = "認証中...";
-          authStatus.className = "auth-status failure";
-          authCount = 0; // カウントリセット
-        }
-      })
-      .catch(error => {
-        console.error("エラー:", error);
-        authStatus.textContent = "サーバーエラーが発生しました";
-        authStatus.className = "auth-status failure";
-        authCount = 0; // カウントリセット
-      });
-    }, 1000); // 1秒ごとに送信
   </script>
 </body>
 </html>

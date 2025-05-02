@@ -1,6 +1,6 @@
 # attendance/urls.py
 from django.urls import path
-from . import views, api_
+from . import views
 
 urlpatterns = [
     path('', views.top_view, name='top'),
@@ -19,7 +19,6 @@ urlpatterns = [
     path('record_leave/', views.record_leave, name='record_leave'),
     # ログアウト状態にしてtop画面に遷移
     path('logout_to_top/', views.logout_and_redirect_to_top, name='logout_to_top'),
-    path('face_login_api/', api_.face_login_api, name='face_login_api'),
     # 出勤前の退勤の反映回避
     path('not_record/', views.not_record, name='not_record'),
 ]
